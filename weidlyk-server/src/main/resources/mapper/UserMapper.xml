@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.weiwei.weidlykserver.mapper.UserMapper">
+
+    <select id="selectByLoginAct" resultType="com.weiwei.weidlykserver.entity.User">
+        select id,
+               login_act,
+               login_pwd,
+               name,
+               phone,
+               email,
+               account_no_expired,
+               credentials_no_expired,
+               account_no_locked,
+               account_enabled,
+               create_time,
+               create_by,
+               edit_time,
+               edit_by,
+               last_login_time
+        from t_user
+        where login_act = #{loginAct}
+    </select>
+</mapper>
