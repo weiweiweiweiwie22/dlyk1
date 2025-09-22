@@ -23,6 +23,8 @@ public class MyAuthenticationFailureHandler implements AuthenticationFailureHand
     public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response, AuthenticationException exception) throws IOException, ServletException {
         //登录失败，执行该方法，在该方法中返回json给前端，就行了
         //登录失败的统一结果
+        System.out.println("失败");
+
         Result<Object> result = Result.fail();
 
         //把R对象转成json
