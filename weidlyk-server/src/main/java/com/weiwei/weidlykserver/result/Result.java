@@ -50,4 +50,7 @@ public class Result<T> {
         result.setCode(code);
         return result;
     }
+
+
+
 }

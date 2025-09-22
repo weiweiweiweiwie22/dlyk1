@@ -15,7 +15,7 @@ public class UserLoginImpl implements UserLogin {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-       User user = userMapper.selectByLoginAct( username);
+       User user = userMapper.selectByLoginAct(username);
        if (user == null){
            throw new UsernameNotFoundException("用户不存在");
        }

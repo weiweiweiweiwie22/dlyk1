@@ -4,6 +4,8 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+
+import java.io.Serial;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -17,6 +19,7 @@ import lombok.Setter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.util.ObjectUtils;
 
 /**
  * <p>
@@ -32,6 +35,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 @Schema(name = "User", description = "用户表")
 public class User implements UserDetails,Serializable {
 
+    @Serial
     private static final long serialVersionUID = 1L;
 
     @Schema(description = "主键，自动增长，用户ID")
@@ -107,9 +111,16 @@ public class User implements UserDetails,Serializable {
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         List<GrantedAuthority> list = new ArrayList<>();
-        this.getRoleList().forEach(role -> list.add(new SimpleGrantedAuthority(role)));
-        this.getPermissionList().forEach(permission -> list.add(new SimpleGrantedAuthority(permission)));
-        return List.of();
+        if (!ObjectUtils.isEmpty(this.getRoleList())){
+            this.getRoleList().forEach(role -> list.add(new SimpleGrantedAuthority(role)));
+        }
+
+        if (!ObjectUtils.isEmpty(this.getPermissionList())){
+            this.getPermissionList().forEach(permission -> list.add(new SimpleGrantedAuthority(permission)));
+        }
+
+
+        return list;
     }
 
     @Override
