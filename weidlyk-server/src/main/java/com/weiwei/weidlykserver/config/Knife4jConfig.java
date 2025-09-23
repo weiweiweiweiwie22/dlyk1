@@ -36,6 +36,20 @@ public class Knife4jConfig {
     }
 
     @Bean
+    public GroupedOpenApi loginApi() {
+        return GroupedOpenApi.builder()
+                .group("登录管理") // 分组名称
+                .pathsToMatch(
+                        "/api/login/**",
+                        "/role/**",
+                        "/permission/**",
+                        "/userRole/**",
+                        "/rolePermission/**"
+                )
+                .build();
+    }
+
+    @Bean
     public GroupedOpenApi marketingApi() {
         // 将市场活动、线索相关的接口分为一组
         return GroupedOpenApi.builder()

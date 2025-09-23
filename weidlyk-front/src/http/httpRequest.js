@@ -2,6 +2,7 @@ import axios from "axios";
 
 
 axios.defaults.baseURL = "http://localhost:8089";
+axios.defaults.withCredentials = true; // 开启跨域携带 cookie
 
 export function doGet(url,params) {
     return axios({

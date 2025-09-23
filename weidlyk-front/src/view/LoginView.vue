@@ -25,7 +25,7 @@
         </el-form-item>
 
         <el-form-item>
-          <el-checkbox label="记住我" name="rememberMe"/>
+          <el-checkbox label="记住我" name="rememberMe" v-model="user.rememberMe"/>
         </el-form-item>
       </el-form>
     </el-main>
@@ -45,6 +45,7 @@ const loginRefForm = ref(null);
 const user = reactive({
   loginAct: "",
   loginPwd: "",
+  rememberMe: false,
 });
 
 const loginRules = reactive({
@@ -65,6 +66,7 @@ const login = () => {
       let formData = new FormData();
       formData.append("loginAct", user.loginAct);
       formData.append("loginPwd", user.loginPwd);
+      formData.append("rememberMe", user.rememberMe);
 
       doPost('/api/login', formData).then((res)=>{
         console.log(res);

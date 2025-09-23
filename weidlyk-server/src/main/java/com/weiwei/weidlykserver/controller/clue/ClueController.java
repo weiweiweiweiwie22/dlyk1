@@ -1,18 +1,18 @@
-package com.weiwei.weidlykserver.controller;
+package com.weiwei.weidlykserver.controller.clue;
 
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
  * <p>
- * 角色表 前端控制器
+ * 线索表 前端控制器
  * </p>
  *
  * @author weiwei
  * @since 2025-09-22
  */
 @RestController
-@RequestMapping("/role")
-public class RoleController {
+@RequestMapping("/clue")
+public class ClueController {
 
 }

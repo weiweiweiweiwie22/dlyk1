@@ -1,4 +1,4 @@
-package com.weiwei.weidlykserver.controller;
+package com.weiwei.weidlykserver.controller.activity;
 
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
