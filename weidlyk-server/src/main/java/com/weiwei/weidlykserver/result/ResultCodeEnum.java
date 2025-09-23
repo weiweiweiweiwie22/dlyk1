@@ -11,10 +11,13 @@ public enum ResultCodeEnum {
     SUCCESS(200, "成功"),
     FAIL(500, "失败"),
 
-    TOKEN_EXPIRED(601, "token过期"),
-    TOKEN_INVALID(602, "token非法");
-    private final Integer code;
+    //== Token 相关错误码 ==//
+    TOKEN_NOT_PROVIDED(901, "未提供Token"),
+    TOKEN_EXPIRED(902, "Token已过期"),
+    TOKEN_INVALID(903, "无效的Token");
 
+
+    private final Integer code;
     private final String message;
 
     ResultCodeEnum(Integer code, String message) {

@@ -1,6 +1,6 @@
 package com.weiwei.weidlykserver.config;
 
-import com.weiwei.weidlykserver.filter.JwtValidationFilter; // 导入刚刚创建的过滤器
+import com.weiwei.weidlykserver.filter.JwtValidationFilter;
 import com.weiwei.weidlykserver.handler.MyAuthenticationFailureHandler;
 import com.weiwei.weidlykserver.handler.MyAuthenticationSuccessHandler;
 import jakarta.annotation.Resource;
@@ -12,12 +12,13 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter; // 导入
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.util.Arrays;
+import java.util.Collections;
 
 @Configuration
 @EnableWebSecurity
@@ -85,10 +86,10 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
 
-        // ⬇️⬇️⬇️ 只修改这一行 ⬇️⬇️⬇️
-        // 将 "*" 修改为你的具体前端地址
-        configuration.setAllowedOrigins(Arrays.asList("http://localhost:8082"));
-        // ⬆️⬆️⬆️ 只修改这一行 ⬆️⬆️⬆️
+        // ⬇️⬇️⬇️ 核心修改在这里 ⬇️⬇️⬇️
+        // 使用 addAllowedOriginPattern("*") 允许所有来源，解决开发环境IP地址变化问题
+        configuration.setAllowedOriginPatterns(Collections.singletonList("*"));
+        // ⬆️⬆️⬆️ 核心修改在这里 ⬆️⬆️⬆️
 
         // 允许的请求方法
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));

@@ -1,5 +1,6 @@
 import axios from "axios";
-import {tokenName} from "../util/util.js";
+import {messageTip, tokenName} from "../util/util.js";
+import {ElMessage, ElMessageBox} from "element-plus";
 
 
 axios.defaults.baseURL = "http://localhost:8089";
@@ -75,6 +76,27 @@ axios.interceptors.request.use(function (config) {
 axios.interceptors.response.use(function (response) {
     // 2xx 范围内的状态码都会触发该函数。
     // 对响应数据做点什么
+
+    //token验证不通过
+    if(response.data.code > 900) {
+        {
+            ElMessageBox.confirm(
+                response.data.message + '是否重新登录？',
+                'Warning',
+                {
+                    confirmButtonText: '确定',
+                    cancelButtonText: '取消',
+                    type: 'warning',
+                }
+            )
+                .then(() => {
+                    window.location.href = '/'
+                })
+                .catch(() => {
+                    messageTip('取消登录', 'warning');
+                })
+        }
+    }
     return response;
 }, function (error) {
     // 超出 2xx 范围的状态码都会触发该函数。

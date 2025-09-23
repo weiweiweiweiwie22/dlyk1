@@ -15,3 +15,8 @@ export function tokenName(){
     return "weidlyk_token";
 }
 
+//删除历史token
+export function removeHistoryToken(){
+    window.sessionStorage.removeItem(tokenName())
+    window.sessionStorage.removeItem(tokenName())
+}

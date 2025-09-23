@@ -1,8 +1,10 @@
 package com.weiwei.weidlykserver.handler;
 
+import com.fasterxml.jackson.databind.ObjectMapper; // 导入ObjectMapper
 import com.weiwei.weidlykserver.result.Result;
-import com.weiwei.weidlykserver.util.JSONUtils;
+// 删掉 import com.weiwei.weidlykserver.util.JSONUtils;
 import com.weiwei.weidlykserver.util.ResponseUtils;
+import jakarta.annotation.Resource; // 导入Resource
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -12,25 +14,21 @@ import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 
-/**
- * 登录失败的处理器
- *
- */
 @Component
 public class MyAuthenticationFailureHandler implements AuthenticationFailureHandler {
 
+    @Resource // 注入正确配置的ObjectMapper
+    private ObjectMapper objectMapper;
+
     @Override
     public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response, AuthenticationException exception) throws IOException, ServletException {
-        //登录失败，执行该方法，在该方法中返回json给前端，就行了
-        //登录失败的统一结果
         System.out.println("失败");
 
         Result<Object> result = Result.fail();
 
-        //把R对象转成json
-        String resultJSON = JSONUtils.toJSON(result);
+        // 核心改动：直接使用注入的objectMapper
+        String resultJSON = objectMapper.writeValueAsString(result);
 
-        //把R以json返回给前端
         ResponseUtils.write(response, resultJSON);
     }
 }
