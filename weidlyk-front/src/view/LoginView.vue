@@ -1,15 +1,11 @@
-
-
 <template>
   <el-container>
-    <!--左侧栏目-->
     <el-aside width="200px">
       <img src="../assets/loginBox.svg" alt="logo">
       <p class="imgTitle">
         欢迎使用微宏客管理系统
       </p>
     </el-aside>
-    <!--右侧栏目-->
     <el-main>
       <div class="loginTitle">
         欢迎登陆
@@ -36,53 +32,52 @@
   </el-container>
 </template>
 
-<script>
-import {doPost} from "../http/httpRequest.js";
+<script setup>
+import { reactive, ref } from 'vue'; // 1. 导入 reactive 和 ref
+import { doPost } from "../http/httpRequest.js";
+import {ElMessage} from "element-plus";
+import {messageTip} from "../util/util.js";
 
-export default ({
-  name: "LoginView",
+// 2. 定义表单的 ref 引用
+const loginRefForm = ref(null);
 
-  // 定义数据变量
-  data(){
-    return{
-      user: {
-        loginAct: "",
-        loginPwd:"",
-      },
-      loginRules:{
-        loginAct:[
-            { required: true, message: '请输入账号', trigger: 'blur' },
-        ],
-        loginPwd:[
-            { required: true, message: '请输入密码', trigger: 'blur' },
-            { min: 6, max:16, message: '密码长度请在6-16位之间', trigger: 'blur' },
-        ],
-      }
+// 3. 使用 reactive 来定义响应式数据，替代原来的 data()
+const user = reactive({
+  loginAct: "",
+  loginPwd: "",
+});
 
-    }
-  },
+const loginRules = reactive({
+  loginAct:[
+    { required: true, message: '请输入账号', trigger: 'blur' },
+  ],
+  loginPwd:[
+    { required: true, message: '请输入密码', trigger: 'blur' },
+    { min: 6, max:16, message: '密码长度请在6-16位之间', trigger: 'blur' },
+  ],
+});
 
-  //定义函数
-  methods:{
-    login(){
-      //提交前校验数据
-      this.$refs.loginRefForm.validate((isValid)=>{
-        if(isValid){
+// 4. 直接定义函数，替代原来的 methods
+const login = () => {
+  // 校验数据
+  loginRefForm.value.validate((isValid) => {
+    if(isValid){
+      let formData = new FormData();
+      formData.append("loginAct", user.loginAct);
+      formData.append("loginPwd", user.loginPwd);
 
-          let formData = new FormData();
-          formData.append("loginAct",this.user.loginAct);
-          formData.append("loginPwd",this.user.loginPwd);
-
-          doPost('/api/login',formData).then((res)=>{
-            console.log(res);
-          });
+      doPost('/api/login', formData).then((res)=>{
+        console.log(res);
+        if (res.data.code === 200){
+          messageTip("登陆成功","success")
+          window.location.href = "/dashboard";
+        }else {
+          messageTip("登陆失败","error")
         }
-      })
+      });
     }
-  }
-})
-
-
+  });
+}
 </script>
 
 <style scoped>

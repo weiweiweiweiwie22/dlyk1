@@ -4,16 +4,12 @@ import axios from "axios";
 axios.defaults.baseURL = "http://localhost:8089";
 
 export function doGet(url,params) {
-    axios({
+    return axios({
         method: 'get',
         url: url,
         params: params,
         dataType: 'json'
-    }).then(function (response) {
-        console.log(response);
-    }).catch(function (error) {
-        console.log(error);
-    });
+    })
 
 }
 

@@ -11,6 +11,11 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+
+import java.util.Arrays;
 
 @Configuration
 @EnableWebSecurity
@@ -25,7 +30,7 @@ public class SecurityConfig {
     private MyAuthenticationFailureHandler myAuthenticationFailureHandler;
 
     @Bean
-    public PasswordEncoder  passwordEncoder(){
+    public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
@@ -54,10 +59,38 @@ public class SecurityConfig {
                         .failureHandler(myAuthenticationFailureHandler) // 配置登录失败处理器
                 )
                 // 5. 禁用 CSRF（跨站请求伪造）保护
-                //    在前后端分离项目中，通常使用Token机制认证，CSRF的必要性不大。
-                .csrf(AbstractHttpConfigurer::disable);
+                .csrf(AbstractHttpConfigurer::disable)
 
-        // 6. 构建并返回 SecurityFilterChain 实例
+                // 6. 配置 CORS 跨域
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()));
+
+        // 7. 构建并返回 SecurityFilterChain 实例
         return http.build();
+    }
+
+    /**
+     * 创建并配置 CORS 规则
+     * @return CorsConfigurationSource
+     */
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration configuration = new CorsConfiguration();
+
+        // ⬇️⬇️⬇️ 只修改这一行 ⬇️⬇️⬇️
+        // 将 "*" 修改为你的具体前端地址
+        configuration.setAllowedOrigins(Arrays.asList("http://localhost:8082"));
+        // ⬆️⬆️⬆️ 只修改这一行 ⬆️⬆️⬆️
+
+        // 允许的请求方法
+        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        // 允许的请求头
+        configuration.setAllowedHeaders(Arrays.asList("*"));
+        // 是否允许携带凭证（如 cookies）
+        configuration.setAllowCredentials(true);
+
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        // 对所有 URL 应用这个 CORS 配置
+        source.registerCorsConfiguration("/**", configuration);
+        return source;
     }
 }
