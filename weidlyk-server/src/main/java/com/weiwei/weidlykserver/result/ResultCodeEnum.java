@@ -9,8 +9,10 @@ import lombok.Getter;
 public enum ResultCodeEnum {
 
     SUCCESS(200, "成功"),
-    FAIL(500, "失败");
+    FAIL(500, "失败"),
 
+    TOKEN_EXPIRED(601, "token过期"),
+    TOKEN_INVALID(602, "token非法");
     private final Integer code;
 
     private final String message;

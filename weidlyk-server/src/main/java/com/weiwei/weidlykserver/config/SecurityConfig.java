@@ -1,5 +1,6 @@
 package com.weiwei.weidlykserver.config;
 
+import com.weiwei.weidlykserver.filter.JwtValidationFilter; // 导入刚刚创建的过滤器
 import com.weiwei.weidlykserver.handler.MyAuthenticationFailureHandler;
 import com.weiwei.weidlykserver.handler.MyAuthenticationSuccessHandler;
 import jakarta.annotation.Resource;
@@ -11,6 +12,7 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter; // 导入
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -28,6 +30,10 @@ public class SecurityConfig {
     // 注入自定义的认证失败处理器
     @Resource
     private MyAuthenticationFailureHandler myAuthenticationFailureHandler;
+
+    // 注入JWT验证过滤器
+    @Resource
+    private JwtValidationFilter jwtValidationFilter;
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -63,6 +69,9 @@ public class SecurityConfig {
 
                 // 6. 配置 CORS 跨域
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()));
+
+        // 添加JWT验证过滤器到UsernamePasswordAuthenticationFilter之前
+        http.addFilterBefore(jwtValidationFilter, UsernamePasswordAuthenticationFilter.class);
 
         // 7. 构建并返回 SecurityFilterChain 实例
         return http.build();
