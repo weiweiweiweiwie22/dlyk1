@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @RestController
 @RequestMapping("/api")
-@Tag(name = "后台管理系统登录管理")
+@Tag(name = "后台管理系统登录管理1")
 public class UserController {
     @Operation(summary = "登录")
     @GetMapping("/login/info")
