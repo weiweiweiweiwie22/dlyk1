@@ -36,7 +36,7 @@
 import { reactive, ref } from 'vue'; // 1. 导入 reactive 和 ref
 import { doPost } from "../http/httpRequest.js";
 import {ElMessage} from "element-plus";
-import {messageTip} from "../util/util.js";
+import {messageTip, tokenName} from "../util/util.js";
 
 // 2. 定义表单的 ref 引用
 const loginRefForm = ref(null);
@@ -72,7 +72,13 @@ const login = () => {
         console.log(res);
         if (res.data.code === 200){
           messageTip("登陆成功","success")
+          if (user.rememberMe){
+            window.localStorage.setItem(tokenName(),res.data.data)
+           }else {
+            window.sessionStorage.setItem(tokenName(),res.data.data)
+          }
           window.location.href = "/dashboard";
+
         }else {
           messageTip("登陆失败","error")
         }
