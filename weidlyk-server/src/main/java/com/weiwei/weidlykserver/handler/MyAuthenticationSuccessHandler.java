@@ -29,7 +29,7 @@ public class MyAuthenticationSuccessHandler implements AuthenticationSuccessHand
         User user = (User) authentication.getPrincipal();
 
         String userJSON = JSONUtils.toJSON(user);
-        // 生成 JWT，用户信息作为负载
+        // 生成 JWT，用户信息作为负载1
         String jwt = JWTUtils.createJWT(userJSON);
 
         redisService.setValue(Constants.REDIS_JWT_KEY+user.getId(), jwt);
