@@ -24,7 +24,7 @@ import static com.weiwei.weidlykserver.constant.RedisConstant.*;
 public class MyAuthenticationSuccessHandler implements AuthenticationSuccessHandler {
 
     @Resource
-    private ObjectMapper objectMapper; // Spring会注入我们在ObjectMapperConfig中配置好的实例
+    private ObjectMapper objectMapper;
 
     @Resource
     private StringRedisTemplate stringRedisTemplate;
@@ -32,19 +32,21 @@ public class MyAuthenticationSuccessHandler implements AuthenticationSuccessHand
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
         User user = (User) authentication.getPrincipal();
-
-        // 核心改动：不再调用JWTUtils去序列化，直接在这里完成
         String userJSON = objectMapper.writeValueAsString(user);
-        // 将序列化后的JSON传入JWT工具类
-        String jwt = JWTUtils.createJWT(user.getId(), userJSON);
 
-        String rememberMe = request.getParameter("rememberMe");
-        long expirationTime = Boolean.parseBoolean(rememberMe) ? REDIS_JWT_TTL_SEC : DEFAULT_REDIS_JWT_TTL_SEC;
+        // 1. 获取前端传来的 rememberMe 参数
+        String rememberMeParam = request.getParameter("rememberMe");
+        boolean rememberMe = Boolean.parseBoolean(rememberMeParam);
+
+        // 2. 【修改】调用新的 createJWT 方法，传入 rememberMe 状态
+        String jwt = JWTUtils.createJWT(user.getId(), userJSON, rememberMe);
+
+        // 3. 根据 rememberMe 状态决定在 Redis 中的初始过期时间
+        long expirationTime = rememberMe ? REDIS_JWT_TTL_SEC : DEFAULT_REDIS_JWT_TTL_SEC;
 
         stringRedisTemplate.opsForValue().set(REDIS_JWT_KEY_PREFIX + user.getId(), jwt, expirationTime, TimeUnit.SECONDS);
 
         Result<String> result = Result.ok(jwt);
-        // 直接使用注入的 objectMapper
         String resultJSON = objectMapper.writeValueAsString(result);
         ResponseUtils.write(response, resultJSON);
     }

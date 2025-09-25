@@ -1,5 +1,6 @@
 package com.weiwei.weidlykserver.service;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.weiwei.weidlykserver.entity.User;
 import com.baomidou.mybatisplus.extension.service.IService;
 
@@ -13,4 +14,5 @@ import com.baomidou.mybatisplus.extension.service.IService;
  */
 public interface UserService extends IService<User> {
 
+    IPage<User> pageItem(IPage<User> page);
 }

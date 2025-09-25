@@ -3,6 +3,7 @@ package com.weiwei.weidlykserver.config;
 import com.weiwei.weidlykserver.filter.JwtValidationFilter;
 import com.weiwei.weidlykserver.handler.MyAuthenticationFailureHandler;
 import com.weiwei.weidlykserver.handler.MyAuthenticationSuccessHandler;
+import com.weiwei.weidlykserver.handler.MyLogoutSuccessHandler;
 import jakarta.annotation.Resource;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -35,6 +36,10 @@ public class SecurityConfig {
     // 注入JWT验证过滤器
     @Resource
     private JwtValidationFilter jwtValidationFilter;
+
+    // 注入自定义的登出成功处理器
+    @Resource
+    private MyLogoutSuccessHandler myLogoutSuccessHandler;
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -71,8 +76,15 @@ public class SecurityConfig {
                 // 6. 配置 CORS 跨域
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()));
 
+//                .logout(logout -> logout
+//                        .logoutUrl("/api/logout") // 配置注销URL
+//                        .logoutSuccessHandler(myLogoutSuccessHandler) // 3. 使用新的登出成功处理器
+//                );
+
         // 添加JWT验证过滤器到UsernamePasswordAuthenticationFilter之前
         http.addFilterBefore(jwtValidationFilter, UsernamePasswordAuthenticationFilter.class);
+
+
 
         // 7. 构建并返回 SecurityFilterChain 实例
         return http.build();

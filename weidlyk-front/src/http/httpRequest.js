@@ -1,5 +1,5 @@
 import axios from "axios";
-import {messageTip, tokenName} from "../util/util.js";
+import {messageConfirm, messageTip, removeHistoryToken, tokenName} from "../util/util.js";
 import {ElMessage, ElMessageBox} from "element-plus";
 
 
@@ -80,22 +80,17 @@ axios.interceptors.response.use(function (response) {
     //token验证不通过
     if(response.data.code > 900) {
         {
-            ElMessageBox.confirm(
-                response.data.message + '是否重新登录？',
-                'Warning',
-                {
-                    confirmButtonText: '确定',
-                    cancelButtonText: '取消',
-                    type: 'warning',
-                }
-            )
+            messageConfirm(response.data.message + ',是否重新登录？', 'warning')
                 .then(() => {
+                    //token验证失败，删除错误的token，跳转到登录页
+                    removeHistoryToken();
                     window.location.href = '/'
                 })
                 .catch(() => {
                     messageTip('取消登录', 'warning');
                 })
         }
+        return Promise.reject(response.data);
     }
     return response;
 }, function (error) {

@@ -1,5 +1,6 @@
 package com.weiwei.weidlykserver.mapper;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.weiwei.weidlykserver.entity.User;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 
@@ -14,4 +15,6 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 public interface UserMapper extends BaseMapper<User> {
 
     User selectByLoginAct(String username);
+
+    IPage<User> pageItem(IPage<User> page);
 }

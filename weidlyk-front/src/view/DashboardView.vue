@@ -15,7 +15,9 @@
           style="border-right: solid 0;"
           :collapse="data.isCollapse"
           :collapse-transition="false"
+          :router="true"
           :unique-opened="true">
+
         <el-sub-menu index="1">
           <template #title>
             <el-icon><OfficeBuilding /></el-icon>
@@ -86,11 +88,10 @@
             <span>用户管理</span>
           </template>
 
-          <el-menu-item index="1-1">客户管理</el-menu-item>
-          <el-menu-item index="1-2">客户管理</el-menu-item>
+          <el-menu-item index="/dashboard/user">用户管理</el-menu-item>
         </el-sub-menu>
 
-        <el-sub-menu index="7">
+        <el-sub-menu index="8">
           <template #title>
             <el-icon><location /></el-icon>
             <span>系统管理</span>
@@ -109,7 +110,7 @@
 
         <el-dropdown>
     <span class="el-dropdown-link">
-      {{ data.userName }}
+      {{ data.user.name }}
       <el-icon class="el-icon--right">
         <arrow-down />
       </el-icon>
@@ -118,14 +119,17 @@
             <el-dropdown-menu>
               <el-dropdown-item>我的资料</el-dropdown-item>
               <el-dropdown-item>修改密码</el-dropdown-item>
-              <el-dropdown-item divided>退出登录</el-dropdown-item>
+              <el-dropdown-item divided @click="logout">退出登录</el-dropdown-item>
             </el-dropdown-menu>
           </template>
         </el-dropdown>
 
       </el-header>
 <!--      中间-->
-      <el-main>Main</el-main>
+      <el-main>
+        <router-view/>
+      </el-main>
+
       <el-footer>@版权所有 2025-2099 微宏科技 成都工业学院</el-footer>
     </el-container>
   </el-container>
@@ -135,11 +139,12 @@
 
 import {FullScreen, OfficeBuilding, Operation, PieChart} from "@element-plus/icons-vue";
 import {onMounted, reactive} from "vue";
-import {doGet} from "../http/httpRequest.js";
+import {doGet, doPost} from "../http/httpRequest.js";
+import {messageConfirm, messageTip, removeHistoryToken} from "../util/util.js";
 
 const data = reactive({
   isCollapse: false,
-  userName: '',
+  user: {},
 
 });
 const showMenu = () => {
@@ -150,12 +155,32 @@ onMounted(() => {
   loadLoginUser() ;
 });
 
+
 const loadLoginUser = () => {
   doGet('/api/login/info').then(res => {
     console.log(res);
+    data.user = res.data.data;
   });
 };
 
+const logout = () => {
+  doPost('/api/logout',{}).then(res => {
+    if (res.data.code === 200){
+      removeHistoryToken();
+      messageTip("退出成功","success")
+      window.location.href = "/";
+    }else {
+      messageConfirm(res.data.message + '出现错误,是否强行退出？', 'warning')
+        .then(() => {
+          removeHistoryToken();
+          window.location.href = "/";
+        })
+        .catch(() => {
+          messageTip('取消退出', 'warning');
+        })
+    }
+  })
+}
 </script>
 
 

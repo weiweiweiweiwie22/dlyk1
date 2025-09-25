@@ -33,10 +33,12 @@
 </template>
 
 <script setup>
-import { reactive, ref } from 'vue'; // 1. 导入 reactive 和 ref
-import { doPost } from "../http/httpRequest.js";
+import {onMounted, reactive, ref} from 'vue'; // 1. 导入 reactive 和 ref
+import {doGet, doPost} from "../http/httpRequest.js";
 import {ElMessage} from "element-plus";
 import {messageTip, removeHistoryToken, tokenName} from "../util/util.js";
+
+
 
 // 2. 定义表单的 ref 引用
 const loginRefForm = ref(null);
@@ -89,6 +91,23 @@ const login = () => {
       });
     }
   });
+}
+
+//免登录
+onMounted(() => {
+  freeLogin();
+});
+
+// 免登录
+const freeLogin = () => {
+  let token = window.localStorage.getItem(tokenName());
+  if (token){
+    doGet('/api/login/free',{}).then(res => {
+      if (res.data.code === 200){
+        window.location.href = "/dashboard";
+      }
+    })
+  }
 }
 </script>
 
