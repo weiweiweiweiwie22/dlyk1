@@ -6,6 +6,8 @@ import com.weiwei.weidlykserver.service.PermissionService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 /**
  * <p>
  * 权限表 服务实现类
@@ -17,4 +19,8 @@ import org.springframework.stereotype.Service;
 @Service
 public class PermissionServiceImpl extends ServiceImpl<PermissionMapper, Permission> implements PermissionService {
 
+    @Override
+    public List<Permission> getMenusByUserId(Integer id) {
+        return baseMapper.selectMenusByUserId(id);
+    }
 }

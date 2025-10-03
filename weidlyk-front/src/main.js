@@ -18,6 +18,8 @@ import LoginView from './view/LoginView.vue'
 
 import * as ElementPlusIconsVue from '@element-plus/icons-vue'
 
+import zhCn from 'element-plus/es/locale/lang/zh-cn'
+
 const app = createApp(App);
 
 for (const [key, component] of Object.entries(ElementPlusIconsVue)){
@@ -26,7 +28,7 @@ for (const [key, component] of Object.entries(ElementPlusIconsVue)){
 
 //创建app，运行一下'./App.vue'页面
 
- app.use(ElementPlus)
+ app.use(ElementPlus, {locale: zhCn})
     .use( router)
     //挂载app，将运行结构放到id为app的标签下
     .mount('#app')

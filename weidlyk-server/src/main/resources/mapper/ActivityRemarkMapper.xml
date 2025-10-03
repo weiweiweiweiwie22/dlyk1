@@ -2,4 +2,23 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.weiwei.weidlykserver.mapper.ActivityRemarkMapper">
 
+    <resultMap id="ActivityRemarkVoResultMap" type="com.weiwei.weidlykserver.vo.ActivityRemarkVo" autoMapping="true">
+        <id property="id" column="id"/>
+        <result property="createByName" column="create_by_name"/>
+    </resultMap>
+
+    <select id="selectRemarkVoListByActivityId" resultMap="ActivityRemarkVoResultMap">
+        select
+            tar.*,
+            tu.name as create_by_name
+        from
+            t_activity_remark tar
+                left join
+            t_user tu on tar.create_by = tu.id
+        where
+            tar.activity_id = #{activityId}
+        order by
+            tar.create_time desc
+    </select>
+
 </mapper>

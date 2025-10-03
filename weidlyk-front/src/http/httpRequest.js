@@ -17,16 +17,12 @@ export function doGet(url,params) {
 }
 
 export function doDelete(url,params) {
-    axios({
+    return axios({
         method: 'delete',
         url: url,
         params: params,
         dataType: 'json'
-    }).then(function (response) {
-        console.log(response);
-    }).catch(function (error) {
-        console.log(error);
-    });
+    })
 
 }
 
@@ -54,6 +50,24 @@ export function doPut(url,data) {
 
 }
 
+export function doGetFile(url, params) {
+    return axios({
+        method: 'get',
+        url: url,
+        params: params,
+        responseType: 'blob' // 关键：告诉axios期望的响应类型是Blob
+    });
+}
+
+export function doPostFile(url, data) {
+    return axios({
+        method: 'post',
+        url: url,
+        data: data,
+        responseType: 'blob' // 关键：告诉axios期望的响应类型是Blob
+    });
+}
+
 
 // 添加请求拦截器
 axios.interceptors.request.use(function (config) {
@@ -64,7 +78,7 @@ axios.interceptors.request.use(function (config) {
         token = window.sessionStorage.getItem(tokenName())
     }
     if(token){
-        config.headers.Authorization = token
+        config.headers[tokenName()] = token;
     }
     return config;
 }, function (error) {

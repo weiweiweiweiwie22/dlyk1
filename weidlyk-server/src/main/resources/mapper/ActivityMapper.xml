@@ -2,4 +2,72 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.weiwei.weidlykserver.mapper.ActivityMapper">
 
+    <resultMap id="ActivityWithOwnerResultMap" type="com.weiwei.weidlykserver.entity.Activity" autoMapping="true">
+        <id property="id" column="id"/>
+        <result property="ownerName" column="owner_name"/>
+    </resultMap>
+
+    <select id="pageItem" resultMap="ActivityWithOwnerResultMap">
+        select
+        ta.id,
+        ta.owner_id,
+        ta.name,
+        ta.start_time,
+        ta.end_time,
+        ta.cost,
+        ta.description,
+        ta.create_time,
+        ta.create_by,
+        ta.edit_time,
+        ta.edit_by,
+        tu.name as owner_name
+        from
+        t_activity ta
+        left join
+        dlyk.t_user tu on ta.owner_id = tu.id
+        <where>
+            1=1
+            <if test="query.ownerId != null and query.ownerId != ''">
+                and ta.owner_id = #{query.ownerId}
+            </if>
+            <if test="query.name != null and query.name != ''">
+                and ta.name like concat('%', #{query.name}, '%')
+            </if>
+            <if test="query.cost != null">
+                and ta.cost >= #{query.cost}
+            </if>
+            <if test="query.createTime != null and query.createTime != ''">
+                and date(ta.create_time) = date(#{query.createTime})
+            </if>
+            <if test="query.startTime != null and query.startTime != ''">
+                and ta.start_time &gt;= #{query.startTime}
+            </if>
+            <if test="query.endTime != null and query.endTime != ''">
+                and ta.end_time &lt;= #{query.endTime}
+            </if>
+        </where>
+    </select>
+
+    <select id="selectByName" resultMap="ActivityWithOwnerResultMap">
+        select
+            ta.id,
+            ta.owner_id,
+            ta.name,
+            ta.start_time,
+            ta.end_time,
+            ta.cost,
+            ta.description,
+            ta.create_time,
+            ta.create_by,
+            ta.edit_time,
+            ta.edit_by,
+            tu.name as owner_name
+        from
+            t_activity ta
+                left join
+            dlyk.t_user tu on ta.owner_id = tu.id
+        where
+            ta.name = #{name}
+    </select>
+
 </mapper>

@@ -70,4 +70,8 @@ public class Activity implements Serializable {
     @Schema(description = "活动编辑人")
     @TableField("edit_by")
     private Integer editBy;
+
+    @Schema(description = "负责人姓名（非本表字段，通过JOIN查询获得）")
+    @TableField(exist = false) // 关键注解！告诉MyBatis-Plus这个字段在 t_activity 表中不存在
+    private String ownerName;
 }

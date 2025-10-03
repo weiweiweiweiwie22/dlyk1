@@ -44,8 +44,8 @@ public class TranHistory implements Serializable {
     private BigDecimal money;
 
     @Schema(description = "交易预计成交时间")
-    @TableField("expected_date")
-    private LocalDateTime expectedDate;
+    @TableField("expected_LocalDateTime")
+    private LocalDateTime expectedLocalDateTime;
 
     @Schema(description = "创建时间")
     @TableField("create_time")

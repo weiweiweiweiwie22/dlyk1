@@ -61,36 +61,38 @@ const loginRules = reactive({
 });
 
 // 4. 直接定义函数，替代原来的 methods
-const login = () => {
-  // 校验数据
-  loginRefForm.value.validate((isValid) => {
-    if(isValid){
-      let formData = new FormData();
-      formData.append("loginAct", user.loginAct);
-      formData.append("loginPwd", user.loginPwd);
-      formData.append("rememberMe", user.rememberMe);
+const login = async () => {
+  try {
+    // 使用 await 等待校验完成
+    await loginRefForm.value.validate();
 
-      doPost('/api/login', formData).then((res)=>{
-        console.log(res);
-        if (res.data.code === 200){
-          messageTip("登陆成功","success")
+    // 校验成功，继续执行
+    let formData = new FormData();
+    formData.append("loginAct", user.loginAct);
+    formData.append("loginPwd", user.loginPwd);
+    formData.append("rememberMe", user.rememberMe);
 
-          // 清除历史记录token
-          removeHistoryToken();
+    // 使用 await 等待请求完成
+    const res = await doPost('/api/login', formData);
 
-          if (user.rememberMe){
-            window.localStorage.setItem(tokenName(),res.data.data)
-           }else {
-            window.sessionStorage.setItem(tokenName(),res.data.data)
-          }
-          window.location.href = "/dashboard";
+    if (res.data.code === 200) {
+      messageTip("登陆成功", "success");
+      removeHistoryToken();
 
-        }else {
-          messageTip("登陆失败","error")
-        }
-      });
+      if (user.rememberMe) {
+        window.localStorage.setItem(tokenName(), res.data.data);
+      } else {
+        window.sessionStorage.setItem(tokenName(), res.data.data);
+      }
+      window.location.href = "/dashboard";
+    } else {
+      messageTip(res.data.message || "登陆失败", "error");
     }
-  });
+  } catch (error) {
+    // 统一处理校验失败或请求失败
+    console.log('登录流程出错', error);
+    messageTip("请检查账号和密码", "warning");
+  }
 }
 
 //免登录

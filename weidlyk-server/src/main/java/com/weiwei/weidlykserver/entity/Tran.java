@@ -44,8 +44,8 @@ public class Tran implements Serializable {
     private BigDecimal money;
 
     @Schema(description = "预计成交日期")
-    @TableField("expected_date")
-    private LocalDateTime expectedDate;
+    @TableField("expected_LocalDateTime")
+    private LocalDateTime expectedLocalDateTime;
 
     @Schema(description = "交易所处阶段")
     @TableField("stage")

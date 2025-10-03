@@ -1,12 +1,14 @@
 package com.weiwei.weidlykserver.config;
 
 import com.weiwei.weidlykserver.filter.JwtValidationFilter;
+import com.weiwei.weidlykserver.handler.MyAccessDeniedHandler; // 1. 引入 MyAccessDeniedHandler
 import com.weiwei.weidlykserver.handler.MyAuthenticationFailureHandler;
 import com.weiwei.weidlykserver.handler.MyAuthenticationSuccessHandler;
 import com.weiwei.weidlykserver.handler.MyLogoutSuccessHandler;
 import jakarta.annotation.Resource;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -23,23 +25,21 @@ import java.util.Collections;
 
 @Configuration
 @EnableWebSecurity
+@EnableMethodSecurity
 public class SecurityConfig {
 
-    // 注入自定义的认证成功处理器
     @Resource
     private MyAuthenticationSuccessHandler myAuthenticationSuccessHandler;
-
-    // 注入自定义的认证失败处理器
     @Resource
     private MyAuthenticationFailureHandler myAuthenticationFailureHandler;
-
-    // 注入JWT验证过滤器
     @Resource
     private JwtValidationFilter jwtValidationFilter;
-
-    // 注入自定义的登出成功处理器
     @Resource
     private MyLogoutSuccessHandler myLogoutSuccessHandler;
+
+    // 2. 新增注入 MyAccessDeniedHandler
+    @Resource
+    private MyAccessDeniedHandler myAccessDeniedHandler;
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -49,69 +49,48 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                // 1. 配置请求授权规则
                 .authorizeHttpRequests(authorize -> authorize
-                        // 2. 对 Knife4j/Swagger 和登录请求 的相关路径放行，允许匿名访问
                         .requestMatchers(
                                 "/doc.html",
                                 "/webjars/**",
                                 "/swagger-resources/**",
                                 "/v3/api-docs/**",
-                                "/api/login" // 放行登录处理URL
+                                "/api/login",
+                                "/api/logout"
                         ).permitAll()
-                        // 3. 除了上面放行的路径，其他所有请求都需要认证（登录）后才能访问
                         .anyRequest().authenticated()
                 )
-                // 4. 配置表单登录
                 .formLogin(formLogin -> formLogin
-                        .loginProcessingUrl("/api/login") // 指定处理登录请求的URL
-                        .usernameParameter("loginAct") // 自定义接收用户名的参数名
-                        .passwordParameter("loginPwd") // 自定义接收密码的参数名
-                        .successHandler(myAuthenticationSuccessHandler) // 配置登录成功处理器
-                        .failureHandler(myAuthenticationFailureHandler) // 配置登录失败处理器
+                        .loginProcessingUrl("/api/login")
+                        .usernameParameter("loginAct")
+                        .passwordParameter("loginPwd")
+                        .successHandler(myAuthenticationSuccessHandler)
+                        .failureHandler(myAuthenticationFailureHandler)
                 )
-                // 5. 禁用 CSRF（跨站请求伪造）保护
                 .csrf(AbstractHttpConfigurer::disable)
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+                .logout(logout -> logout
+                        .logoutUrl("/api/logout")
+                        .logoutSuccessHandler(myLogoutSuccessHandler)
+                )
+                // 3. 新增异常处理配置
+                .exceptionHandling(exceptions -> exceptions
+                        .accessDeniedHandler(myAccessDeniedHandler) // 指定访问被拒绝时的处理器
+                );
 
-                // 6. 配置 CORS 跨域
-                .cors(cors -> cors.configurationSource(corsConfigurationSource()));
-
-//                .logout(logout -> logout
-//                        .logoutUrl("/api/logout") // 配置注销URL
-//                        .logoutSuccessHandler(myLogoutSuccessHandler) // 3. 使用新的登出成功处理器
-//                );
-
-        // 添加JWT验证过滤器到UsernamePasswordAuthenticationFilter之前
         http.addFilterBefore(jwtValidationFilter, UsernamePasswordAuthenticationFilter.class);
 
-
-
-        // 7. 构建并返回 SecurityFilterChain 实例
         return http.build();
     }
 
-    /**
-     * 创建并配置 CORS 规则
-     * @return CorsConfigurationSource
-     */
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-
-        // ⬇️⬇️⬇️ 核心修改在这里 ⬇️⬇️⬇️
-        // 使用 addAllowedOriginPattern("*") 允许所有来源，解决开发环境IP地址变化问题
         configuration.setAllowedOriginPatterns(Collections.singletonList("*"));
-        // ⬆️⬆️⬆️ 核心修改在这里 ⬆️⬆️⬆️
-
-        // 允许的请求方法
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-        // 允许的请求头
         configuration.setAllowedHeaders(Arrays.asList("*"));
-        // 是否允许携带凭证（如 cookies）
         configuration.setAllowCredentials(true);
-
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        // 对所有 URL 应用这个 CORS 配置
         source.registerCorsConfiguration("/**", configuration);
         return source;
     }

@@ -44,6 +44,17 @@ public class JwtValidationFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+        String[] whiteList = {"/doc.html", "/v3/api-docs", "/swagger-ui", "/webjars"};
+        String requestURI = request.getRequestURI();
+
+        // --- 新增代码：如果请求的URI以白名单中的任何一个路径开头，则直接放行 ---
+        for (String path : whiteList) {
+            if (requestURI.startsWith(path)) {
+                filterChain.doFilter(request, response);
+                return;
+            }
+        }
+
         // 如果是登录请求，直接放行
         if ("/api/login".equals(request.getRequestURI())) {
             filterChain.doFilter(request, response);
@@ -51,7 +62,7 @@ public class JwtValidationFilter extends OncePerRequestFilter {
         }
 
         try {
-            String jwt = request.getHeader("Authorization");
+            String jwt = request.getHeader("weidlyk_token");
 
             if (!StringUtils.hasText(jwt)) {
                 throw new BusinessException(ResultCodeEnum.TOKEN_NOT_PROVIDED);

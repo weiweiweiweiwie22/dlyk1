@@ -10,7 +10,9 @@ import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
+
 import java.util.List;
+
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -101,9 +103,11 @@ public class User implements UserDetails,Serializable {
     //自定义字段
 
     //角色列表
+    @TableField(exist = false)
     private List<String> roleList;
 
     //权限列表
+    @TableField(exist = false)
     private List<String> permissionList;
 
     // UserDetails的方法

@@ -2,4 +2,18 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.weiwei.weidlykserver.mapper.TranMapper">
 
+    <select id="selectSuccessAmount" resultType="java.math.BigDecimal">
+        select sum(money)
+        from t_tran
+        where stage = 12
+    </select>
+    <select id="selectTotalAmount" resultType="java.math.BigDecimal">
+        select sum(money)
+        from t_tran
+    </select>
+    <select id="selectSuccessCount" resultType="java.lang.Long">
+        select count(*)
+        from t_tran
+        where stage = 12
+    </select>
 </mapper>

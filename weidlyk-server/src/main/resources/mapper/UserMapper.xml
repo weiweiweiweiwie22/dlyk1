@@ -2,6 +2,109 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.weiwei.weidlykserver.mapper.UserMapper">
 
+    <resultMap id="UserVoMap" type="com.weiwei.weidlykserver.vo.UserVo" autoMapping="true">
+        <id property="id" column="id"/>
+    </resultMap>
+
+
+    <insert id="saveUser" parameterType="com.weiwei.weidlykserver.entity.User">
+        insert into t_user
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="loginAct != null">
+                login_act,
+            </if>
+            <if test="loginPwd != null">
+                login_pwd,
+            </if>
+            <if test="name != null">
+                name,
+            </if>
+            <if test="phone != null">
+                phone,
+            </if>
+            <if test="email != null">
+                email,
+            </if>
+            <if test="accountNoExpired != null">
+                account_no_expired,
+            </if>
+            <if test="credentialsNoExpired != null">
+                credentials_no_expired,
+            </if>
+            <if test="accountNoLocked != null">
+                account_no_locked,
+            </if>
+            <if test="accountEnabled != null">
+                account_enabled,
+            </if>
+
+            <if test="createBy != null">
+                create_by,
+            </if>
+            <if test="editBy != null">
+                edit_by,
+            </if>
+            <if test="createTime != null">
+                create_time,
+            </if>
+            <if test="editTime != null">
+                edit_time,
+            </if>
+            <if test="lastLoginTime != null">
+                last_login_time,
+            </if>
+        </trim>
+        <trim  prefix="values (" suffix=")" suffixOverrides=",">
+                <if test="loginAct != null">
+                    #{loginAct},
+                </if>
+                <if test="loginPwd != null">
+                    #{loginPwd},
+                </if>
+                <if test="name != null">
+                    #{name},
+                </if>
+                <if test="phone != null">
+                    #{phone},
+                </if>
+                <if test="email != null">
+                    #{email},
+                </if>
+                <if test="accountNoExpired != null">
+                    #{accountNoExpired},
+                </if>
+                <if test="credentialsNoExpired != null">
+                    #{credentialsNoExpired},
+                </if>
+                <if test="accountNoLocked != null">
+                    #{accountNoLocked},
+                </if>
+                <if test="accountEnabled != null">
+                    #{accountEnabled},
+                </if>
+                <if test="createBy != null">
+                    #{createBy},
+                </if>
+                <if test="editBy != null">
+                    #{editBy},
+                </if>
+                <if test="createTime != null">
+                    #{createTime},
+                </if>
+                <if test="editTime != null">
+                    #{editTime},
+                </if>
+                <if test="lastLoginTime != null">
+                    #{lastLoginTime}
+                </if>
+        </trim>
+
+
+
+
+    </insert>
+
+
     <select id="selectByLoginAct" resultType="com.weiwei.weidlykserver.entity.User">
         select id,
                login_act,
@@ -23,6 +126,59 @@
     </select>
 
     <select id="pageItem" resultType="com.weiwei.weidlykserver.entity.User">
+        select tu.id,
+               tu.login_act,
+               tu.login_pwd,
+               tu.name,
+               tu.phone,
+               tu.email,
+               tu.account_no_expired,
+               tu.credentials_no_expired,
+               tu.account_no_locked,
+               tu.account_enabled,
+               tu.create_time,
+               tu.create_by,
+               tu.edit_time,
+               tu.edit_by,
+               tu.last_login_time
+        from t_user tu
+        where 1 = 1
+    </select>
+
+    <select id="getDetailById" resultMap="UserVoMap">
+        select
+            tu.id,
+            tu.login_act,
+            tu.name,
+            tu.phone,
+            tu.email,
+            tu.account_no_expired,
+            tu.credentials_no_expired,
+            tu.account_no_locked,
+            tu.account_enabled,
+            tu.create_time,
+            tu.edit_time,
+            tu.last_login_time,
+            tu1.name as create_by_name,
+            tu2.name as edit_by_name
+        from t_user tu
+                 left join t_user tu1 on tu.create_by = tu1.id
+                 left join t_user tu2 on tu.edit_by = tu2.id
+        where tu.id = #{id}
+    </select>
+
+    <select id="selectRolesByUserId" resultType="java.lang.String">
+        select
+            r.role
+        from
+            t_role r
+                left join
+            t_user_role ur on r.id = ur.role_id
+        where
+            ur.user_id = #{userId}
+    </select>
+
+    <select id="selectByUsername" resultType="com.weiwei.weidlykserver.entity.User">
         select id,
                login_act,
                login_pwd,
@@ -39,5 +195,6 @@
                edit_by,
                last_login_time
         from t_user
+        where name = #{username}
     </select>
 </mapper>

@@ -2,4 +2,120 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.weiwei.weidlykserver.mapper.ClueMapper">
 
+    <resultMap id="CluePageVoResultMap" type="com.weiwei.weidlykserver.vo.CluePageVo">
+        <id property="id" column="id"/>
+        <result property="ownerName" column="owner_name"/>
+        <result property="activityName" column="activity_name"/>
+        <result property="fullName" column="full_name"/>
+        <result property="phone" column="phone"/>
+        <result property="wechat" column="weixin"/>
+        <result property="nextContactTime" column="next_contact_time"/>
+        <result property="appellation" column="appellation_str"/>
+        <result property="intentionStatus" column="intention_state_str"/>
+        <result property="intentionProduct" column="intention_product_str"/>
+        <result property="needsLoan" column="intention_loan_str"/>
+        <result property="status" column="state_str"/>
+        <result property="source" column="source_str"/>
+    </resultMap>
+
+    <select id="selectCluePage" resultMap="CluePageVoResultMap">
+        select
+        tc.id,
+        tc.full_name,
+        tc.phone,
+        tc.weixin,
+        tc.next_contact_time,
+        tu.name as owner_name,
+        ta.name as activity_name,
+        dv_appellation.type_value as appellation_str,
+        dv_intention_status.type_value as intention_state_str,
+        dv_intention_product.type_value as intention_product_str,
+        dv_intention_loan.type_value as intention_loan_str,
+        dv_status.type_value as state_str,
+        dv_source.type_value as source_str
+        from
+        t_clue tc
+        left join t_user tu on tc.owner_id = tu.id
+        left join t_activity ta on tc.activity_id = ta.id
+        left join t_dic_value dv_appellation on tc.appellation = dv_appellation.id
+        left join t_dic_value dv_intention_status on tc.intention_state = dv_intention_status.id
+        left join t_dic_value dv_intention_product on tc.intention_product = dv_intention_product.id
+        left join t_dic_value dv_intention_loan on tc.need_loan = dv_intention_loan.id
+        left join t_dic_value dv_status on tc.state = dv_status.id
+        left join t_dic_value dv_source on tc.source = dv_source.id
+        <where>
+            <if test="query.ownerId != null"> and tc.owner_id = #{query.ownerId} </if>
+            <if test="query.activityId != null"> and tc.activity_id = #{query.activityId} </if>
+            <if test="query.fullName != null and query.fullName != ''"> and tc.full_name like concat('%', #{query.fullName}, '%') </if>
+            <if test="query.phone != null and query.phone != ''"> and tc.phone like concat('%', #{query.phone}, '%') </if>
+            <if test="query.status != null and query.status != ''"> and dv_status.type_value like concat('%', #{query.status}, '%') </if>
+            <if test="query.source != null and query.source != ''"> and dv_source.type_value like concat('%', #{query.source}, '%') </if>
+        </where>
+    </select>
+
+    <select id="selectDetailById" resultType="com.weiwei.weidlykserver.vo.ClueDetailVo">
+        select
+            tc.id,
+            tc.owner_id,
+            tc.activity_id,tc.full_name, tc.phone, tc.weixin, tc.age, tc.job, tc.year_income, tc.address,
+            tc.description, tc.next_contact_time, tc.create_time, tc.edit_time,
+
+            owner.name as owner_name,
+            activity.name as activity_name,
+            creator.name as create_by,
+            editor.name as edit_by,
+
+            dic_appellation.type_value as appellation,
+            dic_loan.type_value as need_loan,
+            dic_intention_state.type_value as intention_state,
+            dic_intention_product.type_value as intention_product,
+            dic_state.type_value as state,
+            dic_source.type_value as source
+
+        from t_clue tc
+                 left join t_user owner on tc.owner_id = owner.id
+                 left join t_activity activity on tc.activity_id = activity.id
+                 left join t_user creator on tc.create_by = creator.id
+                 left join t_user editor on tc.edit_by = editor.id
+
+                 left join t_dic_value dic_appellation on tc.appellation = dic_appellation.id
+                 left join t_dic_value dic_loan on tc.need_loan = dic_loan.id
+                 left join t_dic_value dic_intention_state on tc.intention_state = dic_intention_state.id
+                 left join t_dic_value dic_intention_product on tc.intention_product = dic_intention_product.id
+                 left join t_dic_value dic_state on tc.state = dic_state.id
+                 left join t_dic_value dic_source on tc.source = dic_source.id
+
+        where tc.id = #{id}
+    </select>
+
+    <select id="selectRemarkListByClueId" resultType="com.weiwei.weidlykserver.vo.ClueRemarkVo">
+        select
+            tcr.id,
+            tcr.note_content,
+            tcr.create_time,
+            creator.name as create_by,
+            dic.type_value as note_way
+        from
+            t_clue_remark tcr
+                left join t_user creator on tcr.create_by = creator.id
+                left join t_dic_value dic on tcr.note_way = dic.id
+        where
+            tcr.clue_id = #{clueId}
+        order by
+            tcr.create_time desc
+    </select>
+    <select id="selectSourceData" resultType="com.weiwei.weidlykserver.vo.ChartDataVO">
+        select
+            count(tc.id) as value,
+            tdv.type_value as name
+        from
+            t_clue tc
+                left join t_dic_value tdv on tc.source = tdv.id
+        where
+            tdv.type_value is not null
+        group by
+            tc.source
+    </select>
+
+
 </mapper>

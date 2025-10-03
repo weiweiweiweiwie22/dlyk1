@@ -23,7 +23,7 @@ public class CodeGeneratorTest {
                             .enableSpringdoc() // 使用 .enableSpringdoc() 替代 .enableSwagger() 来生成 OpenAPI 3 注解
                             // ==================== ↑↑↑ 核心修改点在这里 ↑↑↑ ====================
                             .outputDir(System.getProperty("user.dir") + "/weidlyk-server/src/main/java")
-                            .commentDate("yyyy-MM-dd");
+                            .commentLocalDateTime("yyyy-MM-dd");
                 })
 
                 // 2. 包配置

@@ -38,7 +38,7 @@ public class DicValue implements Serializable {
     private String typeValue;
 
     @Schema(description = "字典值排序")
-    @TableField("order")
+    @TableField("`order`")
     private Integer order;
 
     @Schema(description = "备注")

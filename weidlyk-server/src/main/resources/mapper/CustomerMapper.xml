@@ -2,4 +2,89 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.weiwei.weidlykserver.mapper.CustomerMapper">
 
+    <select id="selectCustomerPage" resultType="com.weiwei.weidlykserver.vo.CustomerPageVo">
+        SELECT
+        tcu.id,
+        tcl.full_name,
+        tcl.phone,
+        tu.name AS owner_name,
+        tp.name AS product_name,
+        tcu.next_contact_time,
+        tcu.create_time
+        FROM
+        t_customer tcu
+        LEFT JOIN t_clue tcl ON tcu.clue_id = tcl.id
+        LEFT JOIN t_user tu ON tcl.owner_id = tu.id
+        LEFT JOIN t_product tp ON tcu.product = tp.id
+        <where>
+            <if test="query.fullName != null and query.fullName != ''">
+                AND tcl.full_name LIKE CONCAT('%', #{query.fullName}, '%')
+            </if>
+            <if test="query.phone != null and query.phone != ''">
+                AND tcl.phone LIKE CONCAT('%', #{query.phone}, '%')
+            </if>
+            <if test="query.ownerId != null">
+                AND tcl.owner_id = #{query.ownerId}
+            </if>
+            <if test="query.productId != null">
+                AND tcu.product = #{query.productId}
+            </if>
+        </where>
+        ORDER BY
+        tcu.create_time DESC
+    </select>
+
+    <select id="selectCustomersForExport" resultType="com.weiwei.weidlykserver.vo.CustomerExportVo">
+        SELECT
+        tcl.full_name,
+        tcl.phone,
+        tu.name AS owner_name,
+        tp.name AS product_name,
+        tcu.next_contact_time,
+        tcu.create_time
+        FROM
+        t_customer tcu
+        LEFT JOIN t_clue tcl ON tcu.clue_id = tcl.id
+        LEFT JOIN t_user tu ON tcl.owner_id = tu.id
+        LEFT JOIN t_product tp ON tcu.product = tp.id
+        <where>
+            <if test="query.fullName != null and query.fullName != ''">
+                AND tcl.full_name LIKE CONCAT('%', #{query.fullName}, '%')
+            </if>
+            <if test="query.phone != null and query.phone != ''">
+                AND tcl.phone LIKE CONCAT('%', #{query.phone}, '%')
+            </if>
+            <if test="query.ownerId != null">
+                AND tcl.owner_id = #{query.ownerId}
+            </if>
+            <if test="query.productId != null">
+                AND tcu.product = #{query.productId}
+            </if>
+        </where>
+        ORDER BY
+        tcu.create_time DESC
+    </select>
+
+    <select id="selectCustomersForExportByIds" resultType="com.weiwei.weidlykserver.vo.CustomerExportVo">
+        SELECT
+        tcl.full_name,
+        tcl.phone,
+        tu.name AS owner_name,
+        tp.name AS product_name,
+        tcu.next_contact_time,
+        tcu.create_time
+        FROM
+        t_customer tcu
+        LEFT JOIN t_clue tcl ON tcu.clue_id = tcl.id
+        LEFT JOIN t_user tu ON tcl.owner_id = tu.id
+        LEFT JOIN t_product tp ON tcu.product = tp.id
+        WHERE
+        tcu.id IN
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+        ORDER BY
+        tcu.create_time DESC
+    </select>
+
 </mapper>

@@ -13,4 +13,5 @@ import com.baomidou.mybatisplus.extension.service.IService;
  */
 public interface ClueRemarkService extends IService<ClueRemark> {
 
+    boolean saveClueRemark(ClueRemark clueRemark, Integer id);
 }

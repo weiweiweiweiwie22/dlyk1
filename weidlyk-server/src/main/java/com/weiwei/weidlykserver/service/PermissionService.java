@@ -3,6 +3,8 @@ package com.weiwei.weidlykserver.service;
 import com.weiwei.weidlykserver.entity.Permission;
 import com.baomidou.mybatisplus.extension.service.IService;
 
+import java.util.List;
+
 /**
  * <p>
  * 权限表 服务类
@@ -13,4 +15,5 @@ import com.baomidou.mybatisplus.extension.service.IService;
  */
 public interface PermissionService extends IService<Permission> {
 
+    List<Permission> getMenusByUserId(Integer id);
 }

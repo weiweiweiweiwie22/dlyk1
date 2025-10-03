@@ -1,5 +1,35 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.weiwei.weidlykserver.mapper.PermissionMapper">
+    <select id="selectMenusByUserId" resultType="com.weiwei.weidlykserver.entity.Permission">
+        SELECT DISTINCT
+            p.id, p.name, p.code, p.url, p.type, p.parent_id, p.order_no, p.icon
+        FROM
+            t_permission p
+                JOIN
+            t_role_permission rp ON p.id = rp.permission_id
+                JOIN
+            t_user_role ur ON rp.role_id = ur.role_id
+        WHERE
+            ur.user_id = #{userId}
+          AND
+            p.type = 'menu'
+        ORDER BY
+            p.parent_id, p.order_no
+    </select>
 
+    <select id="selectCodesByUserId" resultType="java.lang.String">
+        SELECT DISTINCT
+            p.code
+        FROM
+            t_permission p
+                JOIN
+            t_role_permission rp ON p.id = rp.permission_id
+                JOIN
+            t_user_role ur ON rp.role_id = ur.role_id
+        WHERE
+            ur.user_id = #{userId}
+          AND
+            p.code IS NOT NULL AND p.code != ''
+    </select>
 </mapper>

@@ -2,6 +2,9 @@ package com.weiwei.weidlykserver.mapper;
 
 import com.weiwei.weidlykserver.entity.ActivityRemark;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.weiwei.weidlykserver.vo.ActivityRemarkVo;
+
+import java.util.List;
 
 /**
  * <p>
@@ -12,5 +15,5 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
  * @since 2025-09-22
  */
 public interface ActivityRemarkMapper extends BaseMapper<ActivityRemark> {
-
+    List<ActivityRemarkVo> selectRemarkVoListByActivityId(Integer activityId);
 }
