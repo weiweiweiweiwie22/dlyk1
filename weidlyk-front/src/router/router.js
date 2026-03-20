@@ -80,9 +80,24 @@ const router = createRouter({
                     component: () => import('../view/TranView.vue')
                 },
                 {
+                    path: "product",
+                    name: "product",
+                    component: () => import('../view/ProductView.vue')
+                },
+                {
                     path: "customer/:id",
                     name: "customerDetail",
                     component: () => import('../view/CustomerDetailView.vue')
+                },
+                {
+                    path: "dictionary/type",
+                    name: "dictionaryType",
+                    component: () => import('../view/DictionaryTypeView.vue')
+                },
+                {
+                    path: "dictionary/value",
+                    name: "dictionaryValue",
+                    component: () => import('../view/DictionaryValueView.vue')
                 }
             ]
         },
