@@ -44,7 +44,7 @@ public class Tran implements Serializable {
     private BigDecimal money;
 
     @Schema(description = "预计成交日期")
-    @TableField("expected_LocalDateTime")
+    @TableField("expected_date") // 必须是 expected_date
     private LocalDateTime expectedLocalDateTime;
 
     @Schema(description = "交易所处阶段")
@@ -74,4 +74,11 @@ public class Tran implements Serializable {
     @Schema(description = "编辑人")
     @TableField("edit_by")
     private Integer editBy;
+
+    // 在 Tran.java 实体类中添加
+    @TableField(exist = false)
+    private String customerName; // 客户姓名
+
+    @TableField(exist = false)
+    private String activityName; // 市场活动名称
 }

@@ -87,4 +87,26 @@
         tcu.create_time DESC
     </select>
 
+    <select id="selectDetailById" resultType="com.weiwei.weidlykserver.vo.CustomerDetailVo">
+        SELECT
+            tc.id,
+            tcl.full_name AS fullName,
+            tcl.phone,
+            u1.name AS ownerName,
+            tp.name AS productName,
+            tc.description,
+            tc.next_contact_time AS nextContactTime,
+            tc.create_time AS createTime,
+            u2.name AS createBy,
+            tc.edit_time AS editTime,
+            u3.name AS editBy
+        FROM t_customer tc
+                 LEFT JOIN t_clue tcl ON tc.clue_id = tcl.id
+                 LEFT JOIN t_user u1 ON tcl.owner_id = u1.id
+                 LEFT JOIN t_product tp ON tc.product = tp.id
+                 LEFT JOIN t_user u2 ON tc.create_by = u2.id
+                 LEFT JOIN t_user u3 ON tc.edit_by = u3.id
+        WHERE tc.id = #{id}
+    </select>
+
 </mapper>

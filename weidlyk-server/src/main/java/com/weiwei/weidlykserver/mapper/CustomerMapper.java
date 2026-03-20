@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.weiwei.weidlykserver.entity.Customer;
 import com.weiwei.weidlykserver.query.CustomerQuery;
+import com.weiwei.weidlykserver.vo.CustomerDetailVo;
 import com.weiwei.weidlykserver.vo.CustomerExportVo;
 import com.weiwei.weidlykserver.vo.CustomerPageVo;
 import org.apache.ibatis.annotations.Mapper;
@@ -27,4 +28,7 @@ public interface CustomerMapper extends BaseMapper<Customer> {
     List<CustomerExportVo> selectCustomersForExport(@Param("query") CustomerQuery query);
 
     List<CustomerExportVo> selectCustomersForExportByIds(List<Integer> ids);
+
+    // 对应 XML 中的 <select id="selectDetailById">
+    CustomerDetailVo selectDetailById(Integer id);
 }

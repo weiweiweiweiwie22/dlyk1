@@ -17,6 +17,11 @@
           :router="true"
           :unique-opened="true">
 
+        <el-menu-item index="/dashboard">
+          <el-icon><Histogram /></el-icon>
+          <span>仪表盘</span>
+        </el-menu-item>
+
         <template v-for="menu in data.menuTree" :key="menu.id">
 
           <el-sub-menu v-if="menu.children && menu.children.length > 0" :index="menu.id.toString()">
@@ -70,12 +75,11 @@
 </template>
 
 <script setup>
-// 【核心修改 1】: 引入更多所需模块
 import { onMounted, reactive, watch } from "vue";
 import { useRoute } from "vue-router";
 import { doGet, doPost } from "../http/httpRequest.js";
 import { messageConfirm, messageTip, removeHistoryToken } from "../util/util.js";
-// 引入所有需要的图标
+// 引入所有需要的图标，并增加了 Histogram 图标
 import {
   FullScreen,
   OfficeBuilding,
@@ -83,7 +87,8 @@ import {
   User,
   Location,
   ArrowDown,
-  Menu // 引入一个默认图标
+  Menu,
+  Histogram
 } from "@element-plus/icons-vue";
 import {setUserPermissions} from "../util/permission.js";
 
@@ -93,33 +98,25 @@ const data = reactive({
   isCollapse: false,
   user: {},
   currentRouterPath: '',
-  menuTree: [], // 新增：用于存储树形结构的菜单
+  menuTree: [],
 });
 
 /**
  * 辅助函数：将后端返回的扁平列表转换为树形结构
- * @param menuList 扁平的菜单列表
- * @returns {[]} 树形结构的菜单
  */
 const buildMenuTree = (menuList) => {
   const map = {};
   const tree = [];
-  // 首先，将所有菜单项放入map中，方便通过id快速查找
   menuList.forEach(item => {
-    // parentId 是数据库字段名，在JS中通常是驼峰 parentId
-    // 如果你的Permission实体类中是 parent_id，请在这里改为 item.parent_id
     map[item.id] = { ...item, children: [] };
   });
 
-  // 然后，遍历map，将每个菜单项放入其父菜单的children数组中
   for (const item of Object.values(map)) {
-    // 同样，这里也可能是 item.parent_id
     if (item.parentId && item.parentId !== 0) {
       if (map[item.parentId]) {
         map[item.parentId].children.push(item);
       }
     } else {
-      // parentId为0的是顶级菜单
       tree.push(item);
     }
   }
@@ -143,7 +140,6 @@ const updateActiveMenu = (path) => {
 onMounted(() => {
   loadLoginUser();
   updateActiveMenu(route.path);
-  // 新增：页面加载时，获取并构建菜单
   loadAndBuildMenus();
 });
 
@@ -152,13 +148,12 @@ watch(() => route.path, (newPath) => {
 });
 
 /**
- * 从后端加载菜单数据，并构建成树
+ * 从后端加载菜单数据
  */
 const loadAndBuildMenus = async () => {
   try {
     const res = await doGet('/api/permission/menus');
     if (res.data.code === 200) {
-      // 将后端返回的扁平列表转换为树形结构
       data.menuTree = buildMenuTree(res.data.data);
     }
   } catch (error) {
@@ -170,9 +165,6 @@ const loadLoginUser = () => {
   doGet('/api/login/info').then(res => {
     if (res.data.code === 200) {
       data.user = res.data.data;
-
-      // 2. 关键：当获取到用户信息时，立刻用 permissionList 初始化全局权限
-      // 这里的 permissionList 字段名需要和你 User 实体类中返回给前端的字段名一致
       setUserPermissions(res.data.data.permissionList || []);
     }
   });
@@ -200,9 +192,8 @@ const logout = () => {
 
 
 <style scoped>
-/* 样式无需改动 */
 .el-aside{
-  background-color: #1a1a1a;
+  background-color: #334157;
 }
 .el-header{
   background-color:azure;

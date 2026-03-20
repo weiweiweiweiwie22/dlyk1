@@ -73,6 +73,17 @@ const router = createRouter({
                     name:'customer',
                     component:()=>import('../view/CustomerView.vue')
                 },
+                // 在 router.js 的 children 数组中添加
+                {
+                    path: "tran",
+                    name: "tran",
+                    component: () => import('../view/TranView.vue')
+                },
+                {
+                    path: "customer/:id",
+                    name: "customerDetail",
+                    component: () => import('../view/CustomerDetailView.vue')
+                }
             ]
         },
 

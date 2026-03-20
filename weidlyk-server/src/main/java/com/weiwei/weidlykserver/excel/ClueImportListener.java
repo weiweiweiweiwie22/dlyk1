@@ -29,6 +29,7 @@ import java.util.stream.Collectors;
 @Slf4j
 public class ClueImportListener implements ReadListener<ClueImportDTO> {
 
+
     // 批量处理阈值
     private static final int BATCH_COUNT = 100;
     // 缓存转换好的Clue实体

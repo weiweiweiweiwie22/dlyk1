@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.weiwei.weidlykserver.entity.Customer;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.weiwei.weidlykserver.query.CustomerQuery;
+import com.weiwei.weidlykserver.vo.CustomerDetailVo;
 import com.weiwei.weidlykserver.vo.CustomerExportVo;
 import com.weiwei.weidlykserver.vo.CustomerPageVo;
 
@@ -25,4 +26,11 @@ public interface CustomerService extends IService<Customer> {
     List<CustomerExportVo> listCustomersForExport(CustomerQuery query);
 
     List<CustomerExportVo> listCustomersForExportByIds(List<Integer> ids);
+
+    /**
+     * 根据ID获取客户关联详情
+     */
+    CustomerDetailVo getCustomerDetailById(Integer id);
+
+    boolean updateCustomer(Customer customer, Integer userId);
 }

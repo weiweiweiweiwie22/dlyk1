@@ -2,13 +2,12 @@
 import { nextTick, onMounted, reactive, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { ElMessageBox } from 'element-plus';
-// 确保引入了 doGetFile 和 doPostFile
-import { doGet, doPost, doDelete, doGetFile, doPostFile } from "../http/httpRequest.js";
+import { doGet, doPost, doGetFile, doPostFile } from "../http/httpRequest.js";
 import { messageTip } from "../util/util.js";
 
 const router = useRouter();
 
-// --- 响应式状态定义 ---
+// --- 1. 响应式数据状态 ---
 const createInitialSearchState = () => ({
   ownerId: '',
   productId: '',
@@ -20,7 +19,7 @@ const searchForm = reactive(createInitialSearchState());
 const data = reactive({
   customerList: [],
   ownerList: [],
-  productList: [],
+  productList: [], // 用于搜索下拉框和修改弹窗
   total: 0,
 });
 
@@ -32,14 +31,25 @@ const pagination = reactive({
 const tableRef = ref(null);
 const selectionMap = ref(new Map());
 
-// --- 生命周期 ---
+// --- 2. 修改功能状态 ---
+const editDialogVisible = ref(false);
+const editForm = reactive({
+  id: null,              // 【关键】：保存时必须带着客户ID
+  product: null,
+  description: '',
+  nextContactTime: ''
+});
+
+// --- 3. 生命周期与初始化 ---
 onMounted(() => {
   getCustomerList();
   loadOwnerList();
   loadProductList();
 });
 
-// --- 数据获取 ---
+// --- 4. 数据交互方法 ---
+
+// 获取客户分页列表
 const getCustomerList = () => {
   const params = {
     current: pagination.current,
@@ -50,12 +60,11 @@ const getCustomerList = () => {
     if (res.data.code === 200) {
       data.customerList = res.data.data.records;
       data.total = res.data.data.total;
+      // 保持复选框勾选状态
       nextTick(() => {
         if (tableRef.value) {
-          data.customerList.forEach(customer => {
-            if (selectionMap.value.has(customer.id)) {
-              tableRef.value.toggleRowSelection(customer, true);
-            }
+          data.customerList.forEach(c => {
+            if (selectionMap.value.has(c.id)) tableRef.value.toggleRowSelection(c, true);
           });
         }
       });
@@ -63,205 +72,147 @@ const getCustomerList = () => {
   });
 };
 
-const loadOwnerList = () => {
-  doGet('/api/user/all').then(res => {
+const loadOwnerList = () => doGet('/api/user/all').then(res => { if (res.data.code === 200) data.ownerList = res.data.data; });
+const loadProductList = () => doGet('/api/product/all').then(res => { if (res.data.code === 200) data.productList = res.data.data; });
+
+// --- 5. 业务操作逻辑 ---
+
+// 跳转详情页
+const view = (id) => {
+  router.push(`/dashboard/customer/${id}`);
+};
+
+// 打开修改弹窗并回显数据
+const edit = (id) => {
+  doGet(`/api/customer/${id}`).then(res => {
     if (res.data.code === 200) {
-      data.ownerList = res.data.data;
+      // 此时 res.data.data 里包含了 id, product, description 等所有字段
+      Object.assign(editForm, res.data.data);
+      editDialogVisible.value = true;
     }
   });
 };
 
-const loadProductList = () => {
-  doGet('/api/product/all').then(res => {
+// 提交修改
+const submitEdit = async () => {
+  // 确保后端已改为 @PostMapping("/customer/update") 以适配此处的 doPost
+  const res = await doPost('/api/customer/update', editForm);
+  if (res.data.code === 200) {
+    messageTip("修改成功", "success");
+    editDialogVisible.value = false;
+    getCustomerList(); // 刷新当前列表
+  } else {
+    messageTip(res.data.message || "修改失败", "error");
+  }
+};
+
+// 删除客户
+const del = (id) => {
+  ElMessageBox.confirm('确定要删除该客户吗？', '警告', { type: 'warning' }).then(async () => {
+    const res = await doPost(`/api/customer/delete/${id}`);
     if (res.data.code === 200) {
-      data.productList = res.data.data;
+      messageTip("删除成功", "success");
+      getCustomerList();
     }
-  });
+  }).catch(() => {});
 };
 
-
-// --- 搜索与重置 ---
-const onSearch = () => {
-  pagination.current = 1;
-  getCustomerList();
-};
-
-const onReset = () => {
-  Object.assign(searchForm, createInitialSearchState());
-  onSearch();
-};
-
-// --- 分页与操作 ---
-const handlePageChange = (newPage) => {
-  pagination.current = newPage;
-  getCustomerList();
-};
+// --- 6. 搜索、分页与导出 ---
+const onSearch = () => { pagination.current = 1; getCustomerList(); };
+const onReset = () => { Object.assign(searchForm, createInitialSearchState()); onSearch(); };
+const handlePageChange = (val) => { pagination.current = val; getCustomerList(); };
 
 const handleSelect = (selection, row) => {
-  if (selection.some(item => item.id === row.id)) {
-    selectionMap.value.set(row.id, row);
-  } else {
-    selectionMap.value.delete(row.id);
-  }
-};
-const handleSelectAll = (selection) => {
-  if (selection.length > 0) {
-    data.customerList.forEach(customer => selectionMap.value.set(customer.id, customer));
-  } else {
-    data.customerList.forEach(customer => selectionMap.value.delete(customer.id));
-  }
+  if (selection.some(item => item.id === row.id)) selectionMap.value.set(row.id, row);
+  else selectionMap.value.delete(row.id);
 };
 
-const view = (id) => {
-  messageTip("详情功能待开发", "info");
-};
-const del = (id) => {
-  messageTip("删除功能待开发", "info");
+const processDownload = (res, name) => {
+  const blob = new Blob([res.data]);
+  const link = document.createElement('a');
+  link.href = URL.createObjectURL(blob);
+  link.download = name;
+  link.click();
+  URL.revokeObjectURL(link.href);
 };
 
-// 【核心修改】: 重写“导出全部”函数，使其不再跳转页面
 const exportCustomer = () => {
-  ElMessageBox.confirm('确定要导出当前搜索结果的客户列表吗？', '提示', {
-    confirmButtonText: '确定导出',
-    cancelButtonText: '取消',
-    type: 'warning'
-  }).then(() => {
-    // 1. 准备请求参数（即当前的搜索条件）
-    const params = { ...searchForm };
-
-    // 2. 使用 doGetFile 方法请求文件流
-    doGetFile('/api/customer/export', params).then(res => {
-      const blob = new Blob([res.data]);
-      const contentDisposition = res.headers['content-disposition'];
-      let fileName = '客户列表.xlsx';
-      if (contentDisposition) {
-        const fileNameMatch = contentDisposition.match(/filename\*=utf-8''(.+)/);
-        if (fileNameMatch && fileNameMatch.length > 1) {
-          fileName = decodeURIComponent(fileNameMatch[1]);
-        }
-      }
-
-      // 3. 创建隐藏链接并模拟点击，触发下载
-      const link = document.createElement('a');
-      link.href = URL.createObjectURL(blob);
-      link.download = fileName;
-      document.body.appendChild(link);
-      link.click();
-
-      // 4. 清理
-      document.body.removeChild(link);
-      URL.revokeObjectURL(link.href);
-
-      messageTip("导出成功", "success");
-
-    }).catch(err => {
-      messageTip("导出失败，请稍后重试", "error");
-    });
-
-  }).catch(() => {
-    messageTip("已取消导出", "info");
+  ElMessageBox.confirm('确定导出筛选后的全部客户吗？', '提示').then(() => {
+    doGetFile('/api/customer/export', { ...searchForm }).then(res => processDownload(res, '客户列表.xlsx'));
   });
 };
 
-// “导出选中”函数保持不变，它已经是正确的
 const exportSelected = () => {
-  if (selectionMap.value.size === 0) {
-    messageTip("请至少选择一条数据进行导出", "warning");
-    return;
-  }
-  ElMessageBox.confirm(`确定要导出选中的 ${selectionMap.value.size} 条客户数据吗？`, '提示', {
-    confirmButtonText: '确定导出',
-    cancelButtonText: '取消',
-    type: 'warning'
-  }).then(() => {
-    const ids = Array.from(selectionMap.value.keys());
-    doPostFile('/api/customer/export/selected', ids).then(res => {
-      const blob = new Blob([res.data]);
-      const contentDisposition = res.headers['content-disposition'];
-      let fileName = '选中的客户.xlsx';
-      if (contentDisposition) {
-        const fileNameMatch = contentDisposition.match(/filename\*=utf-8''(.+)/);
-        if (fileNameMatch && fileNameMatch.length > 1) {
-          fileName = decodeURIComponent(fileNameMatch[1]);
-        }
-      }
-      const link = document.createElement('a');
-      link.href = URL.createObjectURL(blob);
-      link.download = fileName;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      URL.revokeObjectURL(link.href);
-      messageTip("导出成功", "success");
-      tableRef.value.clearSelection();
-      selectionMap.value.clear();
-    }).catch(err => {
-      messageTip("导出失败，请稍后重试", "error");
-    });
-  }).catch(() => {
-    messageTip("已取消导出", "info");
-  });
+  const ids = Array.from(selectionMap.value.keys());
+  if (ids.length === 0) return messageTip("请先勾选数据", "warning");
+  doPostFile('/api/customer/export/selected', ids).then(res => processDownload(res, '选中客户.xlsx'));
 };
 </script>
 
 <template>
   <div class="page-container">
-    <el-card shadow="never">
+    <el-card shadow="never" class="box-card">
       <el-form :model="searchForm" label-width="80px">
         <el-row :gutter="20">
-          <el-col :span="6">
+          <el-col :xs="24" :sm="12" :md="6">
             <el-form-item label="负责人">
-              <el-select v-model="searchForm.ownerId" clearable placeholder="请选择负责人">
-                <el-option v-for="owner in data.ownerList" :key="owner.id" :label="owner.name" :value="owner.id"/>
+              <el-select v-model="searchForm.ownerId" clearable style="width: 100%">
+                <el-option v-for="u in data.ownerList" :key="u.id" :label="u.name" :value="u.id"/>
               </el-select>
             </el-form-item>
           </el-col>
-          <el-col :span="6">
+          <el-col :xs="24" :sm="12" :md="6">
             <el-form-item label="意向产品">
-              <el-select v-model="searchForm.productId" clearable placeholder="请选择产品">
-                <el-option v-for="product in data.productList" :key="product.id" :label="product.name" :value="product.id"/>
+              <el-select v-model="searchForm.productId" clearable style="width: 100%">
+                <el-option v-for="p in data.productList" :key="p.id" :label="p.name" :value="p.id"/>
               </el-select>
             </el-form-item>
           </el-col>
-          <el-col :span="6">
-            <el-form-item label="客户姓名">
-              <el-input v-model="searchForm.fullName" clearable placeholder="请输入客户姓名"/>
-            </el-form-item>
+          <el-col :xs="24" :sm="12" :md="6">
+            <el-form-item label="客户姓名"><el-input v-model="searchForm.fullName" clearable/></el-form-item>
           </el-col>
-          <el-col :span="6">
-            <el-form-item label="手机号">
-              <el-input v-model="searchForm.phone" clearable placeholder="请输入手机号"/>
-            </el-form-item>
+          <el-col :xs="24" :sm="12" :md="6">
+            <el-form-item label="手机号"><el-input v-model="searchForm.phone" clearable/></el-form-item>
           </el-col>
         </el-row>
         <el-row justify="end">
-          <el-form-item>
-            <el-button type="primary" @click="onSearch">搜索</el-button>
-            <el-button @click="onReset">重置</el-button>
-          </el-form-item>
+          <el-button type="primary" @click="onSearch">筛选</el-button>
+          <el-button @click="onReset">重置</el-button>
         </el-row>
       </el-form>
     </el-card>
 
-    <el-card shadow="never" style="margin-top: 20px;">
+    <el-card shadow="never" class="box-card" style="margin-top: 15px;">
       <div class="toolbar">
-        <el-button type="success" @click="exportCustomer">导出全部(Excel)</el-button>
-        <el-button type="warning" @click="exportSelected" :disabled="selectionMap.size === 0">导出选中(Excel)</el-button>
+        <el-button type="success" @click="exportCustomer" plain>导出全部(Excel)</el-button>
+        <el-button type="warning" @click="exportSelected" :disabled="selectionMap.size === 0" plain>导出选中</el-button>
       </div>
 
-      <el-table ref="tableRef" :data="data.customerList" @select="handleSelect" @select-all="handleSelectAll" border stripe style="margin-top: 20px;">
-        <el-table-column type="selection" width="55" fixed="left" />
-        <el-table-column type="index" label="序号" width="70" align="center" fixed="left" />
-        <el-table-column property="fullName" label="客户姓名" width="120" show-overflow-tooltip />
-        <el-table-column property="phone" label="手机" width="120" show-overflow-tooltip />
-        <el-table-column property="ownerName" label="负责人" width="120" show-overflow-tooltip />
-        <el-table-column property="productName" label="意向产品" width="180" show-overflow-tooltip />
-        <el-table-column property="nextContactTime" label="下次联系时间" width="180" show-overflow-tooltip />
-        <el-table-column property="createTime" label="成为客户时间" width="180" show-overflow-tooltip />
-        <el-table-column label="操作" width="180" align="center" fixed="right">
+      <el-table
+          ref="tableRef"
+          :data="data.customerList"
+          @select="handleSelect"
+          border
+          stripe
+          style="width: 100%; margin-top: 15px;"
+      >
+        <el-table-column type="selection" width="50" fixed="left" />
+        <el-table-column property="fullName" label="姓名" width="110" />
+        <el-table-column property="phone" label="手机" width="130" />
+        <el-table-column property="ownerName" label="负责人" width="110" />
+
+        <el-table-column property="productName" label="意向产品" min-width="180" show-overflow-tooltip />
+
+        <el-table-column property="nextContactTime" label="下次联系" width="170" show-overflow-tooltip />
+        <el-table-column property="createTime" label="录入时间" width="170" />
+
+        <el-table-column label="操作" width="240" align="center" fixed="right">
           <template #default="scope">
-            <el-button text type="primary" @click="view(scope.row.id)">详情</el-button>
-            <el-button text type="danger" @click="del(scope.row.id)">删除</el-button>
+            <div class="op-group">
+              <el-button text type="primary" @click="view(scope.row.id)">详情</el-button>
+              <el-button text type="success" @click="edit(scope.row.id)">修改</el-button>
+              <el-button text type="danger" @click="del(scope.row.id)">删除</el-button>
+            </div>
           </template>
         </el-table-column>
       </el-table>
@@ -271,24 +222,51 @@ const exportSelected = () => {
           background
           layout="total, prev, pager, next, jumper"
           :total="data.total"
-          :page-size="pagination.size"
-          :current-page="pagination.current"
           @current-change="handlePageChange"
       />
     </el-card>
+
+    <el-dialog v-model="editDialogVisible" title="编辑客户信息" width="500px">
+      <el-form :model="editForm" label-width="100px">
+        <el-form-item label="意向产品">
+          <el-select v-model="editForm.product" style="width: 100%">
+            <el-option v-for="p in data.productList" :key="p.id" :label="p.name" :value="p.id"/>
+          </el-select>
+        </el-form-item>
+        <el-form-item label="跟进时间">
+          <el-date-picker v-model="editForm.nextContactTime" type="datetime" style="width: 100%"/>
+        </el-form-item>
+        <el-form-item label="描述备注">
+          <el-input v-model="editForm.description" type="textarea" :rows="4" placeholder="输入客户需求描述..."/>
+        </el-form-item>
+      </el-form>
+      <template #footer>
+        <el-button @click="editDialogVisible = false">取消</el-button>
+        <el-button type="primary" @click="submitEdit">提交修改</el-button>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
 <style scoped>
 .page-container {
-  padding: 20px;
+  padding: 15px;
+  background-color: #f0f2f5;
+  min-height: calc(100vh - 84px);
+}
+.box-card {
+  border: none;
 }
 .toolbar {
   display: flex;
-  align-items: center;
-  gap: 16px;
+  gap: 12px;
 }
-.el-select {
-  width: 100%;
+/* 强制按钮在同一行排列且居中 */
+.op-group {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0;
+  white-space: nowrap;
 }
 </style>

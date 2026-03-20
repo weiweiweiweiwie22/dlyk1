@@ -2,18 +2,45 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.weiwei.weidlykserver.mapper.TranMapper">
 
-    <select id="selectSuccessAmount" resultType="java.math.BigDecimal">
-        select sum(money)
-        from t_tran
-        where stage = 12
+    <select id="selectTranPage" resultType="com.weiwei.weidlykserver.entity.Tran">
+        SELECT
+        t.*,
+        t.expected_date AS expectedLocalDateTime,
+        cl.full_name AS customerName,
+        act.name AS activityName
+        FROM t_tran t
+        LEFT JOIN t_customer c ON t.customer_id = c.id
+        LEFT JOIN t_clue cl ON c.clue_id = cl.id
+        LEFT JOIN t_activity act ON cl.activity_id = act.id
+        <where>
+            <if test="query.tranNo != null and query.tranNo != ''">
+                AND t.tran_no LIKE CONCAT('%', #{query.tranNo}, '%')
+            </if>
+            <if test="query.stage != null">
+                AND t.stage = #{query.stage}
+            </if>
+            <if test="query.customerName != null and query.customerName != ''">
+                AND cl.full_name LIKE CONCAT('%', #{query.customerName}, '%')
+            </if>
+        </where>
+        ORDER BY t.create_time DESC
     </select>
-    <select id="selectTotalAmount" resultType="java.math.BigDecimal">
-        select sum(money)
-        from t_tran
+
+    <select id="selectTranDetailById" resultType="com.weiwei.weidlykserver.vo.TranDetailVo">
+        SELECT
+            t.*,
+            t.expected_date AS expectedDate,
+            cl.full_name AS customerName,
+            act.name AS activityName,
+            u1.name AS createBy,
+            u2.name AS editBy
+        FROM t_tran t
+                 LEFT JOIN t_customer c ON t.customer_id = c.id
+                 LEFT JOIN t_clue cl ON c.clue_id = cl.id
+                 LEFT JOIN t_activity act ON cl.activity_id = act.id
+                 LEFT JOIN t_user u1 ON t.create_by = u1.id
+                 LEFT JOIN t_user u2 ON t.edit_by = u2.id
+        WHERE t.id = #{id}
     </select>
-    <select id="selectSuccessCount" resultType="java.lang.Long">
-        select count(*)
-        from t_tran
-        where stage = 12
-    </select>
+
 </mapper>
