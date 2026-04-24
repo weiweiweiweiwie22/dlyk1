@@ -88,7 +88,8 @@ import {
   Location,
   ArrowDown,
   Menu,
-  Histogram
+  Histogram,
+  Goods
 } from "@element-plus/icons-vue";
 import {setUserPermissions} from "../util/permission.js";
 

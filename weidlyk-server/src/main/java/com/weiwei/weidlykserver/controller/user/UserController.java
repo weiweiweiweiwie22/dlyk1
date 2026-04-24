@@ -48,7 +48,7 @@ public class UserController {
 
     @Operation(summary = "根据ID获取用户详情信息")
     @GetMapping("/getUserDetail/{id}")
-    public Result<UserVo> getUserDetail(@PathVariable Integer id) {
+    public Result<UserVo> getUserDetail(@PathVariable("id") Integer id) {
         UserVo userVo = userService.getDetailById(id);
         return Result.ok(userVo);
     }
@@ -72,7 +72,7 @@ public class UserController {
 
     @Operation(summary = "删除用户")
     @DeleteMapping("/user/delete/{id}")
-    public Result deleteUser(@PathVariable Integer id,Authentication  authentication) {
+    public Result deleteUser(@PathVariable("id") Integer id,Authentication  authentication) {
         User nowUser = (User) authentication.getPrincipal();
         Integer nowUserId = nowUser.getId();
         return userService.removeUserById(id,nowUserId) ? Result.ok() : Result.fail();

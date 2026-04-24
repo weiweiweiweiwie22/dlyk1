@@ -6,7 +6,9 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.weiwei.weidlykserver.entity.Tran;
 import com.weiwei.weidlykserver.query.TranQuery;
 import com.weiwei.weidlykserver.vo.TranDetailVo;
-import org.springframework.data.repository.query.Param;
+
+// 【关键修改：只用 MyBatis 的 Param】
+import org.apache.ibatis.annotations.Param;
 
 import java.math.BigDecimal;
 

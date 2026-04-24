@@ -65,7 +65,7 @@ public class ActivityController {
 
     @Operation(summary = "获取活动详情")
     @GetMapping("/detail/{id}")
-    public Result<ActivityDetailVo> getActivityDetail(@PathVariable Integer id) {
+    public Result<ActivityDetailVo> getActivityDetail(@PathVariable("id") Integer id) {
         ActivityDetailVo activityDetailVo = activityService.getActivityDetailById(id);
         return Result.ok(activityDetailVo);
     }
@@ -89,7 +89,7 @@ public class ActivityController {
 
     @Operation(summary = "删除活动")
     @PostMapping("/delete/{id}")
-    public Result deleteActivity(@PathVariable Integer id) {
+    public Result deleteActivity(@PathVariable("id") Integer id) {
         activityService.removeById(id);
         return Result.ok();
     }

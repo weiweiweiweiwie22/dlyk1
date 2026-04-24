@@ -9,8 +9,9 @@ import com.weiwei.weidlykserver.vo.ChartDataVO;
 import com.weiwei.weidlykserver.vo.ClueDetailVo;
 import com.weiwei.weidlykserver.vo.CluePageVo;
 import com.weiwei.weidlykserver.vo.ClueRemarkVo;
-import io.lettuce.core.dynamic.annotation.Param;
-import org.springframework.security.core.parameters.P;
+
+// 【关键修改】：使用 MyBatis 的 Param
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
@@ -24,7 +25,8 @@ import java.util.List;
  */
 public interface ClueMapper extends BaseMapper<Clue> {
 
-    IPage<CluePageVo> selectCluePage(Page<Clue> page, @Param("query") ClueQuery query);
+    // 【关键修改】：给 page 和 query 都加上 MyBatis 的 @Param
+    IPage<CluePageVo> selectCluePage(@Param("page") Page<Clue> page, @Param("query") ClueQuery query);
 
     ClueDetailVo selectDetailById(Long id);
 

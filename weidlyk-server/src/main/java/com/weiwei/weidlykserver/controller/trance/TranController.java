@@ -53,7 +53,7 @@ public class TranController {
 
     @Operation(summary = "获取交易详情")
     @GetMapping("/detail/{id}")
-    public Result detail(@PathVariable Integer id) {
+    public Result detail(@PathVariable("id") Integer id) {
         // 假设你在 TranMapper 中已定义此方法
         TranDetailVo vo = tranMapper.selectTranDetailById(id);
         return Result.ok(vo);

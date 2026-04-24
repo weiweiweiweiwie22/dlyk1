@@ -69,7 +69,7 @@ public class CustomerController {
 
     @Operation(summary = "获取客户详情")
     @GetMapping("/customer/detail/{id}") // 【关键修改】：去掉了多余的 /api，最终路径：/api/customer/detail/{id}
-    public Result detail(@PathVariable Integer id) {
+    public Result detail(@PathVariable("id") Integer id) {
         CustomerDetailVo vo = customerService.getCustomerDetailById(id);
         return Result.ok(vo);
     }

@@ -37,17 +37,12 @@ export function doPost(url,data) {
 }
 
 export function doPut(url,data) {
-    axios({
+    return axios({
         method: 'put',
         url: url,
         data: data,
         dataType: 'json'
-    }).then(function (response) {
-        console.log(response);
-    }).catch(function (error) {
-        console.log(error);
     });
-
 }
 
 export function doGetFile(url, params) {
