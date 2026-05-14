@@ -113,7 +113,7 @@ public class ClueServiceImpl extends ServiceImpl<ClueMapper, Clue> implements Cl
             Tran tran = new Tran();
             tran.setCustomerId(customer.getId()); // 关联新生成的客户ID
             tran.setMoney(BigDecimal.ZERO);      // 初始金额设为0，待销售后续修改
-            tran.setStage(1);                     // 设置为初始阶段（如：资质审查）
+            tran.setStage(12);                     // 设置为初始阶段（如：资质审查）
             tran.setDescription(customer.getDescription()); // 沿用转换时的描述
             tran.setExpectedLocalDateTime(customer.getNextContactTime()); // 以“下次联系时间”作为预计成交日期
 

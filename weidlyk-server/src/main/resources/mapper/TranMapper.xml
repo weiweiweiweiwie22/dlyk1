@@ -42,4 +42,22 @@
         WHERE t.id = #{id}
     </select>
 
+
+    <select id="selectTotalAmount" resultType="java.math.BigDecimal">
+        SELECT IFNULL(SUM(money), 0) FROM t_tran
+    </select>
+
+    <select id="selectSuccessAmount" resultType="java.math.BigDecimal">
+        SELECT IFNULL(SUM(t.money), 0)
+        FROM t_tran t
+                 LEFT JOIN t_dic_value dv ON t.stage = dv.id
+        WHERE dv.type_value LIKE '%成交%'
+    </select>
+
+    <select id="selectSuccessCount" resultType="java.lang.Long">
+        SELECT COUNT(t.id)
+        FROM t_tran t
+                 LEFT JOIN t_dic_value dv ON t.stage = dv.id
+        WHERE dv.type_value LIKE '%成交%'
+    </select>
 </mapper>

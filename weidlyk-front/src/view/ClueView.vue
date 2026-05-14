@@ -233,8 +233,9 @@ const loadActivityList = () => {
   });
 };
 
+// 👇 核心修正区：所有字典值请求加上 /dicValue 前缀 👇
 const loadAppellationList = () => {
-  doGet('/api/appellation/all').then(res => {
+  doGet('/api/dicValue/appellation/all').then(res => {
     if (res.data.code === 200) {
       data.appellationList = res.data.data;
     }
@@ -242,7 +243,7 @@ const loadAppellationList = () => {
 };
 
 const loadNeedsLoanList = () => {
-  doGet('/api/needsLoan/all').then(res => {
+  doGet('/api/dicValue/needsLoan/all').then(res => {
     if (res.data.code === 200) {
       data.needsLoanList = res.data.data;
     }
@@ -250,7 +251,7 @@ const loadNeedsLoanList = () => {
 };
 
 const loadIntentionStatusList = () => {
-  doGet('/api/intentionStatus/all').then(res => {
+  doGet('/api/dicValue/intentionStatus/all').then(res => {
     if (res.data.code === 200) {
       data.intentionStatusList = res.data.data;
     }
@@ -258,7 +259,7 @@ const loadIntentionStatusList = () => {
 };
 
 const loadIntentionProductList = () => {
-  doGet('/api/intentionProduct/all').then(res => {
+  doGet('/api/dicValue/intentionProduct/all').then(res => {
     if (res.data.code === 200) {
       data.intentionProductList = res.data.data;
     }
@@ -266,7 +267,7 @@ const loadIntentionProductList = () => {
 };
 
 const loadStatusList = () => {
-  doGet('/api/status/all').then(res => {
+  doGet('/api/dicValue/status/all').then(res => {
     if (res.data.code === 200) {
       data.statusList = res.data.data;
     }
@@ -274,12 +275,13 @@ const loadStatusList = () => {
 };
 
 const loadSourceList = () => {
-  doGet('/api/source/all').then(res => {
+  doGet('/api/dicValue/source/all').then(res => {
     if (res.data.code === 200) {
       data.sourceList = res.data.data;
     }
   });
 };
+// 👆 核心修正区结束 👆
 
 const onSearch = () => {
   pagination.current = 1;

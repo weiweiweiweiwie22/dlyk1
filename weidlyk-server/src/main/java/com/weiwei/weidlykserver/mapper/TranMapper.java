@@ -24,4 +24,5 @@ public interface TranMapper extends BaseMapper<Tran> {
     IPage<Tran> selectTranPage(@Param("page") Page<Tran> page, @Param("query") TranQuery query);
 
     TranDetailVo selectTranDetailById(Integer id);
+
 }

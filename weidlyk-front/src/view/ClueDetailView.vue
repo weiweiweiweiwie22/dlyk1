@@ -77,7 +77,7 @@ const loadClueDetail = () => {
  * 加载“跟踪方式”列表
  */
 const loadNoteWayList = () => {
-  doGet('/api/noteWay/all').then(res => {
+  doGet('/api/dicValue/noteWay/all').then(res => {
     if (res.data.code === 200) {
       noteWayList.value = res.data.data;
     }
@@ -88,8 +88,8 @@ const loadNoteWayList = () => {
  * V V V 新增：加载产品列表，用于下拉框 V V V
  */
 const loadProductList = () => {
-  // 【API 依赖】: 确保你有一个后端接口可以返回所有产品的简化列表
-  doGet('/api/intentionProduct/all').then(res => {
+  // 【核心修复】：请求真实的产品表接口，避免外键冲突
+  doGet('/api/product/all').then(res => {
     if (res.data.code === 200) {
       productList.value = res.data.data;
     }
@@ -155,7 +155,6 @@ const handleSubmitConversion = async () => {
       nextContactTime: convertForm.nextContactTime
     };
 
-    // 【API 依赖】: 确保你有一个后端接口处理线索转换的逻辑
     const res = await doPost('/api/clue/convert', payload);
     if (res.data.code === 200) {
       messageTip('转换成功', 'success');
@@ -275,7 +274,7 @@ const goBack = () => {
             <el-option
                 v-for="product in productList"
                 :key="product.id"
-                :label="product.typeValue"
+                :label="product.name"
                 :value="product.id"
             />
           </el-select>
@@ -301,7 +300,6 @@ const goBack = () => {
 </template>
 
 <style scoped>
-/* 样式无重大改动，仅为 page-header-actions 添加 flex 布局 */
 .page-container {
   padding: 20px;
 }
