@@ -80,6 +80,11 @@ const router = createRouter({
                     component: () => import('../view/TranView.vue')
                 },
                 {
+                    path: "tran/:id",
+                    name: "tranDetail",
+                    component: () => import('../view/TranDetailView.vue')
+                },
+                {
                     path: "product",
                     name: "product",
                     component: () => import('../view/ProductView.vue')
@@ -98,6 +103,12 @@ const router = createRouter({
                     path: "dictionary/value",
                     name: "dictionaryValue",
                     component: () => import('../view/DictionaryValueView.vue')
+                },
+                // ... 在原有路由配置中找到 dictionaryValue 之后添加
+                {
+                    path: "system",
+                    name: "systemInfo",
+                    component: () => import('../view/SystemInfoView.vue')
                 }
             ]
         },

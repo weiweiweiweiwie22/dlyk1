@@ -13,17 +13,21 @@ public class TranDetailVo {
     private String tranNo;
     private BigDecimal money;
     private LocalDateTime expectedDate;
-    private Integer stage;
+
+    // 阶段信息
+    private Integer stage;        // 阶段的字典ID（数字）
+    private String stageName;     // 【新增】阶段的中文名称（如：跟进中、已成交）
+
     private String description;
     private LocalDateTime nextContactTime;
-    
+
     // 关联信息
-    private String customerName; // 客户姓名
-    private String activityName; // 市场活动名称
-    
+    private String customerName;  // 客户姓名
+    private String activityName;  // 市场活动名称
+
     // 审计信息
     private LocalDateTime createTime;
-    private String createBy;     // 创建人姓名
+    private String createByName;  // 【修改】改为 createByName，与 SQL 的 create_by_name 对应
     private LocalDateTime editTime;
-    private String editBy;       // 编辑人姓名
+    private String editByName;    // 【修改】改为 editByName，与 SQL 的 edit_by_name 对应
 }

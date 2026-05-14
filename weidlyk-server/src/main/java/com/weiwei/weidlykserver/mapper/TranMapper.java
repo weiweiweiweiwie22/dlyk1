@@ -7,7 +7,7 @@ import com.weiwei.weidlykserver.entity.Tran;
 import com.weiwei.weidlykserver.query.TranQuery;
 import com.weiwei.weidlykserver.vo.TranDetailVo;
 
-// 【关键修改：只用 MyBatis 的 Param】
+// 【关键修改：只用 MyBatis 的 Param】1
 import org.apache.ibatis.annotations.Param;
 
 import java.math.BigDecimal;

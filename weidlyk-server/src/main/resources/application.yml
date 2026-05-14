@@ -33,6 +33,7 @@ spring:
 mybatis-plus:
   configuration:
     log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+    map-underscore-to-camel-case: true  # 【加上这一行！】开启下划线到驼峰命名的自动映射
 
 springdoc:
   default-flat-param-object: true

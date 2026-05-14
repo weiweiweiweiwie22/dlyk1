@@ -29,17 +29,16 @@
     <select id="selectTranDetailById" resultType="com.weiwei.weidlykserver.vo.TranDetailVo">
         SELECT
             t.*,
-            t.expected_date AS expectedDate,
-            cl.full_name AS customerName,
-            act.name AS activityName,
-            u1.name AS createBy,
-            u2.name AS editBy
-        FROM t_tran t
-                 LEFT JOIN t_customer c ON t.customer_id = c.id
-                 LEFT JOIN t_clue cl ON c.clue_id = cl.id
-                 LEFT JOIN t_activity act ON cl.activity_id = act.id
-                 LEFT JOIN t_user u1 ON t.create_by = u1.id
-                 LEFT JOIN t_user u2 ON t.edit_by = u2.id
+            t.expected_date AS expected_date,
+            cl.full_name AS customer_name,
+            act.name AS activity_name,
+            u1.name AS create_by_name,   u2.name AS edit_by_name,     dv.type_value AS stage_name  FROM t_tran t
+                                                                                                            LEFT JOIN t_customer c ON t.customer_id = c.id
+                                                                                                            LEFT JOIN t_clue cl ON c.clue_id = cl.id
+                                                                                                            LEFT JOIN t_activity act ON cl.activity_id = act.id
+                                                                                                            LEFT JOIN t_user u1 ON t.create_by = u1.id
+                                                                                                            LEFT JOIN t_user u2 ON t.edit_by = u2.id
+                                                                                                            LEFT JOIN t_dic_value dv ON t.stage = dv.id
         WHERE t.id = #{id}
     </select>
 
